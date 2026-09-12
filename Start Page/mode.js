@@ -43,8 +43,24 @@
     listPage.style.visibility = 'visible';
   }
 
+  // Map index → URL param name (add more as hells get coded)
+  const PRACTICE_ROUTES = {
+    0: 'dodge',
+  };
+
   InfiniteHeartSubpage.initList(itemEls, (index) => {
-    enterPractice(index);
+    const route = PRACTICE_ROUTES[index];
+    if (route) {
+      // Navigate to the actual game in practice mode
+      const page = document.querySelector('.page');
+      if (page) page.classList.add('page-fade-out');
+      setTimeout(() => {
+        window.location.href = `../game/index.html?practice=${route}`;
+      }, 300);
+    } else {
+      // Hell not yet coded — show placeholder
+      enterPractice(index);
+    }
   });
 
   // Back button and Escape share one rule: if inside a hell, back out to

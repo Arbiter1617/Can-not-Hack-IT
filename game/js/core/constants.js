@@ -8,7 +8,14 @@ const HELL_SCORE_STEP = 3000;  // score between hell transitions
 const SCORE_PER_SEC   = 100;   // passive score gain per second
 const TWO_PI          = Math.PI * 2;
 
-// ─── Mutable game state ──────────────────────────────────────────────
+// ─── URL / Launch Config ─────────────────────────────────────────────
+// ?practice=dodge  →  lock the game to DodgeHell with infinite timer
+const _params       = new URLSearchParams(location.search);
+const PRACTICE_HELL = _params.get('practice') || null; // 'dodge' | null
+
+// Map practice param → hell index in director.hells[]
+const PRACTICE_HELL_IDX = { dodge: 0 };
+
 // score is declared here so every file can read / write it as a global
 let score = 0;
 
