@@ -46,6 +46,7 @@
   // Map index → URL param name (add more as hells get coded)
   const PRACTICE_ROUTES = {
     0: 'dodge',
+    1: 'shield',
   };
 
   InfiniteHeartSubpage.initList(itemEls, (index) => {

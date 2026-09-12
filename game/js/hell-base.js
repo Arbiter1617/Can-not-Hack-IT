@@ -25,6 +25,9 @@ class HellBase {
   /** Flip the heart sprite upside-down (Shooter Hell) */
   get heartUpsideDown() { return false; }
 
+  /** If false, director skips WASD heart movement (hell reads WASD itself) */
+  get heartMovable()    { return true; }
+
   /**
    * Bounding box for heart movement.
    * Return { x, y, w, h } to constrain, or null for full screen.
