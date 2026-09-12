@@ -19,6 +19,7 @@ class ShieldHell extends HellBase {
 
   // ── Hell identity ─────────────────────────────────────────────────
   get heartColor()   { return '#33ff77'; }
+  get name()         { return 'SHIELD HELL'; }
   get heartMovable() { return false; }
   get timerPaused()  { return true; }    // clock freezes during Shield Hell
   get cfg()          { return { grazeGain: 0, hitPenalty: 1 }; }
@@ -29,11 +30,11 @@ class ShieldHell extends HellBase {
     return { x: (W - sz) / 2, y: (H - sz) / 2, w: sz, h: sz };
   }
 
-  // Arrows spawn faster with score
-  get _spawnRate() { return 1.6 - clamp(score / 12000, 0, 1) * 0.85; }
+  // Arrows spawn interval — fast baseline, gets tighter with score
+  get _spawnRate() { return 0.80 - clamp(score / 10000, 0, 1) * 0.45; }
 
-  // Arrow speed: starts fast, scales up further
-  get _arrowSpd()  { return 265 + clamp(score / 240, 0, 160); }
+  // Arrow speed: 425 base → 600 max
+  get _arrowSpd()  { return 425 + clamp(score / 240, 0, 175); }
 
   // ── Lifecycle ─────────────────────────────────────────────────────
   enter() {
@@ -134,19 +135,35 @@ class ShieldHell extends HellBase {
       if (bl.flipTimer <= 0) {
         const newSide = OPP[bl.fromSide];
         const spd     = bl.baseSpd;
+        const bnd     = this.boundary;
+        const hx      = this.dir.hx, hy = this.dir.hy;
 
-        // Teleport to opposite boundary edge and fire toward heart
+        // Spawn 50% of the way from opposite boundary toward center
+        // (much closer = much less reaction time)
+        const frac = 0.50;
         switch (newSide) {
-          case 'W': bl.x = hx; bl.y = b.y;       bl.vx = 0;    bl.vy =  spd; break;
-          case 'S': bl.x = hx; bl.y = b.y + b.h; bl.vx = 0;    bl.vy = -spd; break;
-          case 'A': bl.x = b.x;       bl.y = hy;  bl.vx =  spd; bl.vy = 0;    break;
-          case 'D': bl.x = b.x + b.w; bl.y = hy;  bl.vx = -spd; bl.vy = 0;    break;
+          case 'W':
+            bl.x = hx;
+            bl.y = bnd.y + (hy - bnd.y) * frac;
+            bl.vx = 0; bl.vy = spd; break;
+          case 'S':
+            bl.x = hx;
+            bl.y = (bnd.y + bnd.h) - ((bnd.y + bnd.h) - hy) * frac;
+            bl.vx = 0; bl.vy = -spd; break;
+          case 'A':
+            bl.x = bnd.x + (hx - bnd.x) * frac;
+            bl.y = hy;
+            bl.vx = spd; bl.vy = 0; break;
+          case 'D':
+            bl.x = (bnd.x + bnd.w) - ((bnd.x + bnd.w) - hx) * frac;
+            bl.y = hy;
+            bl.vx = -spd; bl.vy = 0; break;
         }
         bl.fromSide = newSide;
         bl.flipped  = true;
-        bl.color    = '#ff8800'; // orange = flipped
-        bl.trail    = [];        // clear trail so no teleport smear
-      }
+        bl.color    = '#ff8800';
+        bl.trail    = [];
+      }  // clear trail so no teleport smear
     }
   }
 

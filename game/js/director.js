@@ -254,11 +254,12 @@ class GameDirector {
     ctx.font       = 'bold 26px "Courier New"';
     ctx.shadowBlur = 18; ctx.shadowColor = '#ff0000';
     ctx.fillStyle  = '#ff3333';
-    ctx.fillText('\u2014 TIME IS UP \u2014', W / 2, H / 2 - 32);
+    ctx.fillText('\u2014 TIME IS UP \u2014', W / 2, H / 2 - 40);
     ctx.shadowBlur = 0;
     ctx.font = '14px "Courier New"'; ctx.fillStyle = '#aaa';
-    ctx.fillText('SCORE:  ' + Math.floor(score), W / 2, H / 2 + 8);
-    ctx.fillText('REACHED HELL  ' + (this.hellIdx + 1), W / 2, H / 2 + 30);
+    ctx.fillText('SCORE:  ' + Math.floor(score), W / 2, H / 2 + 2);
+    ctx.font = '12px "Courier New"'; ctx.fillStyle = '#888';
+    ctx.fillText('DIED IN  ' + this.currentHell.name, W / 2, H / 2 + 26);
     ctx.font = '11px "Courier New"'; ctx.fillStyle = '#555';
     ctx.fillText('PRESS SPACE OR ENTER TO RETRY', W / 2, H / 2 + 58);
     ctx.textAlign = 'left';
