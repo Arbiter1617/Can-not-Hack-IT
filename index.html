@@ -51,8 +51,8 @@ const HEART_R          = 8;    // lethal hitbox radius
 const GRAZE_R          = 22;   // outer graze ring
 const BASE_SPEED       = 250;  // px/s
 const FOCUS_MULT       = 0.45;
-const HELL_SCORE_STEP  = 4000; // score threshold per hell transition
-const SCORE_PER_SEC    = 80;   // passive score gain
+const HELL_SCORE_STEP  = 3000; // score threshold per hell transition
+const SCORE_PER_SEC    = 150;  // passive score gain
 
 let score = 0;
 
@@ -741,13 +741,23 @@ class GameDirector {
   }
 
   _drawHUD(ctx, W, H) {
-    // Score at the very bottom — plain text, no bar
-    ctx.fillStyle = '#444'; ctx.font = '11px "Courier New"';
-    ctx.textAlign = 'center';
-    ctx.fillText(
-      'SCORE  ' + Math.floor(score) + '   |   HELL  ' + (this.hellIdx + 1),
-      W / 2, H - 14
-    );
+    const sc   = Math.floor(score);
+    const hell = this.hellIdx + 1;
+
+    // Score — large, bright, bottom-centre
+    ctx.textAlign  = 'center';
+    ctx.font       = 'bold 18px "Courier New"';
+    ctx.fillStyle  = '#ffffff';
+    ctx.shadowBlur = 8; ctx.shadowColor = '#4488ff';
+    ctx.fillText(sc.toString().padStart(6, '0'), W / 2, H - 30);
+    ctx.shadowBlur = 0;
+
+    // Sub-label
+    ctx.font      = '10px "Courier New"';
+    ctx.fillStyle = '#555';
+    ctx.fillText('SCORE', W / 2 - 52, H - 30);
+    ctx.fillText('HELL  ' + hell, W / 2 + 22, H - 30);
+
     ctx.textAlign = 'left';
   }
 
