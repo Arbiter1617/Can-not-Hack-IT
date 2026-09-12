@@ -47,6 +47,7 @@
   const PRACTICE_ROUTES = {
     0: 'dodge',
     1: 'shield',
+    2: 'string',
   };
 
   InfiniteHeartSubpage.initList(itemEls, (index) => {

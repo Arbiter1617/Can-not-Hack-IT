@@ -21,7 +21,8 @@ class GameDirector {
     this.hells = [
       new DodgeHell(this),
       new ShieldHell(this),
-      // new StringHell(this),
+      new StringHell(this),
+      // new GravityHell(this),
       // ...
     ];
     this.hellIdx     = 0;
@@ -161,8 +162,8 @@ class GameDirector {
     const focused = Keys['ShiftLeft'] || Keys['ShiftRight'];
     ctx.beginPath();
     ctx.arc(this.hx, this.hy, GRAZE_R, 0, TWO_PI);
-    ctx.strokeStyle = focused ? 'rgba(60,140,255,0.70)' : 'rgba(60,120,255,0.28)';
-    ctx.lineWidth   = focused ? 1.5 : 1;
+    ctx.strokeStyle = focused ? 'rgba(60,160,255,0.85)' : 'rgba(60,140,255,0.55)';
+    ctx.lineWidth   = focused ? 2 : 1.5;
     ctx.stroke();
 
     // HUD
