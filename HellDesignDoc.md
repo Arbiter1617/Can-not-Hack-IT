@@ -324,25 +324,45 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 8. Shooter Hell 🔴
-*Reference: Mettaton — yellow heart, player shoots to destroy incoming blocks*
+## 8. Shooter Hell 🟡 *(timer economy + cooldown + shot direction TBD)*
+*Reference: Mettaton Pacifist Fight — yellow heart, offensive gameplay*
 
 ```
-Heart Color       : 🟡 Yellow (confirmed in GDD)
-Boundary          : ❓
+Heart Color       : ★  Yellow — UPSIDE DOWN heart sprite
+Boundary          : Square box at center of screen
 ─────────────────────────────────────────────────────────
-ATTACKS
-  Patterns        : ❓
-  Projectile Types: Destructible blocks / enemy waves
-  Indicators      : ❓
+MOVEMENT
+  Standard WASD   : Full movement within the square box
+─────────────────────────────────────────────────────────
+SHOOTING MECHANIC
+  Input           : Spacebar — fires a yellow orb with a trail
+  Direction       : Upward only (TBD if direction follows movement)
+  Cooldown        : TBD
+  Damage          : Single orb destroys any enemy or block instantly
+─────────────────────────────────────────────────────────
+ENEMIES & BLOCKS
+  Spawn location  : Top of the ENTIRE screen, from the CENTER zone only
+                    (within the horizontally shootable range for the player)
+  Behavior phase 1: Drop downward from the top toward the player
+  Behavior phase 2: When reaching 1/4 of the box height from the top —
+                    enemy slides LEFT or RIGHT to the SIDE of the box
+                    (now outside the shootable zone)
+  Behavior phase 3: Enemy fires ONE shot at the player, then exits screen
+  Enemy shot      : TBD — aimed at heart or fixed angle?
+  Kill condition  : 1 orb = instant destroy (enemy or block)
 ─────────────────────────────────────────────────────────
 TIMER ECONOMY
-  Near Miss +time : ❓
-  Hit −time       : ❓
-  Special rules   : ❓ (does destroying blocks give +time?)
+  Near Miss +time : TBD
+  Hit −time       : TBD
+  Destroy block   : +0s — killing enemies/blocks gives NO time bonus
+  Special rules   : • Global one-hit rule applies ✅
+                    • Invincibility frames after hit ✅
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
-  ❓
+  Attack patterns : TBD — Pacifist Mettaton fight as reference
+  The side-slide mechanic creates a skill gap: players who shoot early
+  eliminate the threat before it becomes un-shootable. Players who miss
+  must then dodge the retaliatory shot from the side.
 ```
 
 ---
