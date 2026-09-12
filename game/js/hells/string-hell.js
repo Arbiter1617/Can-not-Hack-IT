@@ -3,51 +3,53 @@
 // HELL 3 — STRING HELL
 // Reference: Muffet from Undertale
 //
-// Purple heart · Horizontal rectangle boundary
+// Purple heart · Horizontal rectangle boundary (visible all 4 walls)
 // Y movement: W/S snap between string lanes (one-shot per press)
 // X movement: A/D free horizontal within boundary
 //
 // PHASE 1 (0–18 s): 3 strings
-// PHASE 2 (18+ s):  5 strings (boundary expands, 1 string added top + 1 bottom)
+// PHASE 2 (18+ s):  5 strings (boundary expands, 1 added top + 1 bottom)
 //
 // ATTACKS
 //   Spider     — horizontal orb along one string lane
 //   Bounce     — diagonal orb that bounces off boundary top/bottom
-//   Boomerang  — horizontal orb, reflects off wall, must dodge twice
-//   Bomb       — 5-string phase only; large 3-lane circle with 2 s countdown
+//   Boomerang  — horizontal orb, reflects off both walls, dodge twice
+//   Bomb       — 5-string phase only; FULL-WIDTH rect covering 3 lanes
+//                2 s indicator countdown before it detonates
 //
 // Timer economy: graze +2s · hit −4s
 // ═══════════════════════════════════════════════════════════════════
 class StringHell extends HellBase {
   constructor(dir) {
     super(dir);
-    this.currentString    = 1;   // index into _strings array
+    this.currentString    = 1;
     this.timeInHell       = 0;
     this._prevW           = false;
     this._prevS           = false;
     this.attackCooldown   = 1.8;
     this._deferred        = [];
-    this.STRING_SPACING   = 55;  // px between string lanes
-    this.PAD              = 28;  // px from first/last string to boundary edge
+    this._activeBombs     = [];   // custom bomb entries (not pool bullets)
+    this.STRING_SPACING   = 55;
+    this.PAD              = 28;
     this._lastStringCount = 3;
   }
 
   // ── Hell identity ─────────────────────────────────────────────────
   get heartColor()   { return '#cc44ff'; }
   get name()         { return 'STRING HELL'; }
-  get heartMovable() { return false; }  // WASD handled here
+  get heartMovable() { return false; }
   get cfg()          { return { grazeGain: 2, hitPenalty: 4 }; }
 
   // ── Phase ─────────────────────────────────────────────────────────
   get _stringCount() { return this.timeInHell > 18 ? 5 : 3; }
 
-  // ── Boundary — horizontal rectangle, grows at phase 2 ─────────────
+  // ── Boundary — narrower so all 4 walls are clearly visible ────────
   get boundary() {
     const W = canvas.width, H = canvas.height;
-    const n = this._stringCount;
-    const h = (n - 1) * this.STRING_SPACING + this.PAD * 2;
-    const w = W * 0.90;
-    return { x: (W - w) / 2, y: (H - h) / 2, w, h };
+    const n  = this._stringCount;
+    const bh = (n - 1) * this.STRING_SPACING + this.PAD * 2;
+    const bw = Math.min(W, H) * 0.82; // narrower = left/right walls clearly visible
+    return { x: (W - bw) / 2, y: (H - bh) / 2, w: bw, h: bh };
   }
 
   // ── String Y positions ────────────────────────────────────────────
@@ -58,18 +60,17 @@ class StringHell extends HellBase {
       (_, i) => b.y + this.PAD + i * this.STRING_SPACING);
   }
 
-  // ── Attack spawn interval (gets faster with score) ────────────────
   get _attackRate() { return 1.8 - clamp(score / 12000, 0, 1.05); }
 
   // ── Lifecycle ─────────────────────────────────────────────────────
   enter() {
     this.currentString    = 1;
     this.timeInHell       = 0;
-    this._prevW           = this._prevS = false;
+    this._prevW = this._prevS = false;
     this.attackCooldown   = 1.8;
     this._deferred        = [];
+    this._activeBombs     = [];
     this._lastStringCount = 3;
-    // Place heart at centre of middle string
     this.dir.hx = canvas.width / 2;
     this.dir.hy = this._strings[1];
   }
@@ -77,7 +78,8 @@ class StringHell extends HellBase {
   exit() {
     super.exit();
     this._deferred.forEach(id => clearTimeout(id));
-    this._deferred = [];
+    this._deferred     = [];
+    this._activeBombs  = [];
   }
 
   _defer(ms, fn) {
@@ -92,18 +94,18 @@ class StringHell extends HellBase {
   update(dt) {
     this.timeInHell += dt;
 
-    // Phase upgrade: when 3→5 strings, add one above and below.
-    // Shift currentString down by 1 so the player stays on same relative lane.
+    // Phase upgrade: 3 → 5 strings; shift currentString down so same lane
     const newCount = this._stringCount;
     if (newCount > this._lastStringCount) {
-      this.currentString  = clamp(this.currentString + 1, 0, newCount - 1);
+      this.currentString    = clamp(this.currentString + 1, 0, newCount - 1);
       this._lastStringCount = newCount;
     }
 
     const strings = this._strings;
     const n       = strings.length;
+    const b       = this.boundary;
 
-    // W / S → snap one string up/down (rising-edge only — not held)
+    // W/S → snap one string (rising-edge only)
     const wDown = Keys['KeyW'] || Keys['ArrowUp'];
     const sDown = Keys['KeyS'] || Keys['ArrowDown'];
     if (wDown && !this._prevW) this.currentString = clamp(this.currentString - 1, 0, n - 1);
@@ -111,8 +113,7 @@ class StringHell extends HellBase {
     this._prevW = wDown;
     this._prevS = sDown;
 
-    // A / D → free horizontal movement
-    const b   = this.boundary;
+    // A/D → free horizontal (clamped to boundary)
     const spd = BASE_SPEED;
     if (Keys['KeyA'] || Keys['ArrowLeft'])  this.dir.hx -= spd * dt;
     if (Keys['KeyD'] || Keys['ArrowRight']) this.dir.hx += spd * dt;
@@ -121,20 +122,34 @@ class StringHell extends HellBase {
     // Lock Y to current string
     this.dir.hy = strings[this.currentString];
 
-    // Custom physics for bounce/boomerang
+    // Custom physics for pool bullets
     for (const bl of this.pool.list) {
       if (!bl.active) continue;
-
-      // Bounce ball: reflect off top/bottom boundary
       if (bl.isBounce && bl.boundsY) {
         if (bl.y <= bl.boundsY.top || bl.y >= bl.boundsY.bot) bl.vy = -bl.vy;
       }
-
-      // Boomerang: reflect off left/right boundary
       if (bl.isBoomerang && bl.boundsX) {
         if ((bl.vx > 0 && bl.x >= bl.boundsX.right) ||
-            (bl.vx < 0 && bl.x <= bl.boundsX.left)) {
-          bl.vx = -bl.vx;
+            (bl.vx < 0 && bl.x <= bl.boundsX.left))  bl.vx = -bl.vx;
+      }
+    }
+
+    // Bomb tick + rect hit detection (handled outside pool)
+    const hx = this.dir.hx, hy = this.dir.hy;
+    for (let i = this._activeBombs.length - 1; i >= 0; i--) {
+      const bomb = this._activeBombs[i];
+      bomb.life -= dt;
+      if (bomb.life <= 0) { this._activeBombs.splice(i, 1); continue; }
+
+      if (!bomb.hit && this.dir.iframes <= 0) {
+        // Rect overlap: full boundary width × top-of-lane[0] to bottom-of-lane[2]
+        if (hx > bomb.x && hx < bomb.x + bomb.w &&
+            hy > bomb.top - HEART_R && hy < bomb.bot + HEART_R) {
+          bomb.hit = true;
+          this.dir.iframes    = this.dir.IFRAME_DUR;
+          this.dir.flashAlpha = 0.5;
+          this.dir.clock.subtract(this.cfg.hitPenalty, hx, hy);
+          this.dir.particles.burst(hx, hy, '#ff44ff', 16, 220);
         }
       }
     }
@@ -158,32 +173,30 @@ class StringHell extends HellBase {
     if (atk === 'bomb')      this._bomb();
   }
 
-  // ── SPIDER — horizontal orb along a string lane ───────────────────
+  // ── SPIDER ────────────────────────────────────────────────────────
   _spider() {
-    const strings   = this._strings;
-    const b         = this.boundary;
-    const lane      = Math.floor(Math.random() * strings.length);
-    const fromLeft  = Math.random() > 0.5;
-    const spd       = 190 + clamp(score / 280, 0, 95);
-    const sx        = fromLeft ? b.x : b.x + b.w;
-
-    const bullet = this.pool.spawn({
+    const strings  = this._strings;
+    const b        = this.boundary;
+    const lane     = Math.floor(Math.random() * strings.length);
+    const fromLeft = Math.random() > 0.5;
+    const spd      = 190 + clamp(score / 280, 0, 95);
+    const sx       = fromLeft ? b.x : b.x + b.w;
+    const bullet   = this.pool.spawn({
       x: sx, y: strings[lane], vx: fromLeft ? spd : -spd, vy: 0,
       r: 11, color: '#aa44ff', life: 10,
     });
-    if (bullet) { bullet.isSpider = true; bullet.stringLane = lane; }
+    if (bullet) { bullet.isSpider = true; }
   }
 
-  // ── BOUNCING BALL — diagonal, reflects top/bottom ─────────────────
+  // ── BOUNCING BALL ─────────────────────────────────────────────────
   _bounce() {
     const b        = this.boundary;
     const fromLeft = Math.random() > 0.5;
     const spd      = 175 + clamp(score / 280, 0, 85);
     const sx       = fromLeft ? b.x : b.x + b.w;
-    const sy       = rnd(b.y + 15, b.y + b.h - 15);
+    const sy       = rnd(b.y + 12, b.y + b.h - 12);
     const vy       = (Math.random() > 0.5 ? 1 : -1) * spd * 0.48;
-
-    const bullet = this.pool.spawn({
+    const bullet   = this.pool.spawn({
       x: sx, y: sy, vx: fromLeft ? spd : -spd, vy,
       r: 9, color: '#ff88ff', life: 12,
     });
@@ -193,7 +206,7 @@ class StringHell extends HellBase {
     }
   }
 
-  // ── BOOMERANG — horizontal, reflects off both walls ───────────────
+  // ── BOOMERANG ─────────────────────────────────────────────────────
   _boomerang() {
     const strings  = this._strings;
     const b        = this.boundary;
@@ -201,8 +214,7 @@ class StringHell extends HellBase {
     const fromLeft = Math.random() > 0.5;
     const spd      = 210 + clamp(score / 280, 0, 90);
     const sx       = fromLeft ? b.x : b.x + b.w;
-
-    const bullet = this.pool.spawn({
+    const bullet   = this.pool.spawn({
       x: sx, y: strings[lane], vx: fromLeft ? spd : -spd, vy: 0,
       r: 10, color: '#ffaaff', life: 16,
     });
@@ -212,27 +224,32 @@ class StringHell extends HellBase {
     }
   }
 
-  // ── LARGE BOMB — 2 s countdown, covers 3 adjacent string lanes ────
+  // ── LARGE BOMB (5-string phase only) ──────────────────────────────
+  // Spawns a 2 s indicator, then a FULL-WIDTH rectangle covering 3 lanes
   _bomb() {
-    const strings    = this._strings;
-    const b          = this.boundary;
-    const n          = strings.length;
+    const strings = this._strings;
+    const n       = strings.length;
     if (n < 3) return;
-    const startLane  = Math.floor(Math.random() * (n - 2));
-    const cx         = rnd(b.x + b.w * 0.15, b.x + b.w * 0.85);
-    const cy         = strings[startLane + 1]; // centre of 3-lane span
+    const b         = this.boundary;
+    const startLane = Math.floor(Math.random() * (n - 2));  // 0..n-3
+    const cy        = strings[startLane + 1]; // centre lane Y for indicator
 
-    // 2-second warning indicator
-    this.indicators.add(cx, cy, 2.0);
+    // 2 s warning indicator at the centre of the 3-lane zone
+    this.indicators.add(b.x + b.w / 2, cy, 2.0);
 
     this._defer(2000, () => {
-      // Radius large enough to cover one STRING_SPACING above + below centre
-      const bullet = this.pool.spawn({
-        x: cx, y: cy, vx: 0, vy: 0,
-        r: this.STRING_SPACING - 2,
-        color: '#9900cc', life: 0.70,
+      const strs = this._strings; // re-fetch in case boundary changed
+      const bnd  = this.boundary;
+      // Bomb rectangle spans full boundary width, top-of-lane-0 to bot-of-lane-2
+      this._activeBombs.push({
+        x:    bnd.x,
+        w:    bnd.w,
+        top:  strs[startLane],
+        bot:  strs[Math.min(startLane + 2, strs.length - 1)],
+        life: 0.65,
+        hit:  false,
+        lane: startLane,
       });
-      if (bullet) bullet.isBomb = true;
     });
   }
 
@@ -241,27 +258,52 @@ class StringHell extends HellBase {
     const b       = this.boundary;
     const strings = this._strings;
 
-    // Boundary rectangle
-    ctx.strokeStyle = 'rgba(170,68,255,0.15)';
-    ctx.lineWidth   = 1;
+    // ── Boundary — all 4 walls clearly visible ──────────────────────
+    ctx.strokeStyle = 'rgba(170,68,255,0.40)';
+    ctx.lineWidth   = 1.5;
     ctx.strokeRect(b.x, b.y, b.w, b.h);
 
-    // Strings — faint purple horizontal lines
+    // ── Strings — faint purple horizontal lines ─────────────────────
     for (let i = 0; i < strings.length; i++) {
       const y      = strings[i];
       const active = i === this.currentString;
-
       ctx.beginPath();
       ctx.moveTo(b.x, y);
       ctx.lineTo(b.x + b.w, y);
-      ctx.strokeStyle = active
-        ? 'rgba(170,68,255,0.55)'
-        : 'rgba(170,68,255,0.22)';
+      ctx.strokeStyle = active ? 'rgba(170,68,255,0.55)' : 'rgba(170,68,255,0.22)';
       ctx.lineWidth   = active ? 2 : 1;
       ctx.shadowBlur  = active ? 10 : 3;
       ctx.shadowColor = '#aa44ff';
       ctx.stroke();
-      ctx.shadowBlur  = 0;
+      ctx.shadowBlur = 0;
+    }
+
+    // ── Active bomb explosions — full-width rectangles ───────────────
+    for (const bomb of this._activeBombs) {
+      const alpha = clamp(bomb.life / 0.65, 0, 1);
+      const h     = bomb.bot - bomb.top;
+
+      // Fill — glowing purple rect
+      ctx.fillStyle = `rgba(160,0,220,${alpha * 0.45})`;
+      ctx.fillRect(bomb.x, bomb.top, bomb.w, h);
+
+      // Bright border
+      ctx.strokeStyle = `rgba(220,80,255,${alpha * 0.90})`;
+      ctx.lineWidth   = 2.5;
+      ctx.shadowBlur  = 18; ctx.shadowColor = '#cc00ff';
+      ctx.strokeRect(bomb.x, bomb.top, bomb.w, h);
+      ctx.shadowBlur = 0;
+
+      // String lane accent lines inside explosion
+      const strs = this._strings;
+      for (let li = bomb.lane; li <= bomb.lane + 2 && li < strs.length; li++) {
+        ctx.beginPath();
+        ctx.moveTo(bomb.x, strs[li]);
+        ctx.lineTo(bomb.x + bomb.w, strs[li]);
+        ctx.strokeStyle = `rgba(255,160,255,${alpha * 0.60})`;
+        ctx.lineWidth   = 1;
+        ctx.stroke();
+      }
     }
   }
 }
