@@ -324,7 +324,7 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 8. Shooter Hell 🟡 *(timer economy + cooldown + shot direction TBD)*
+## 8. Shooter Hell 🟢 *(attack patterns TBD — core design LOCKED)*
 *Reference: Mettaton Pacifist Fight — yellow heart, offensive gameplay*
 
 ```
@@ -336,33 +336,39 @@ MOVEMENT
 ─────────────────────────────────────────────────────────
 SHOOTING MECHANIC
   Input           : Spacebar — fires a yellow orb with a trail
-  Direction       : Upward only (TBD if direction follows movement)
-  Cooldown        : TBD
+  Direction       : Strictly UPWARD only — no directional aim
+  Cooldown        : ~0.33s between Space presses (short but not spammable)
   Damage          : Single orb destroys any enemy or block instantly
 ─────────────────────────────────────────────────────────
 ENEMIES & BLOCKS
-  Spawn location  : Top of the ENTIRE screen, from the CENTER zone only
+  Spawn location  : Top of the ENTIRE screen, CENTER zone only
                     (within the horizontally shootable range for the player)
   Behavior phase 1: Drop downward from the top toward the player
-  Behavior phase 2: When reaching 1/4 of the box height from the top —
-                    enemy slides LEFT or RIGHT to the SIDE of the box
-                    (now outside the shootable zone)
-  Behavior phase 3: Enemy fires ONE shot at the player, then exits screen
-  Enemy shot      : TBD — aimed at heart or fixed angle?
+  Behavior phase 2: At 1/4 box height from top — enemy slides LEFT or RIGHT
+                    to the SIDE of the box (now outside the shootable zone)
+  Behavior phase 3: Enemy fires ONE shot aimed at the heart, then exits screen
   Kill condition  : 1 orb = instant destroy (enemy or block)
 ─────────────────────────────────────────────────────────
+ENEMY SHOT BEHAVIOR
+  Direction       : Aimed directly at the heart's current position
+  Approach effect : As the shot nears the box boundary —
+                    • Grows 50% larger in size
+                    • Slows down noticeably
+                    This acts as a natural visual telegraph — player has a
+                    clear window to react before it enters the arena.
+─────────────────────────────────────────────────────────
 TIMER ECONOMY
-  Near Miss +time : TBD
-  Hit −time       : TBD
+  Near Miss +time : +1s (same as Dodge Hell)
+  Hit −time       : −6s (same as Dodge Hell)
   Destroy block   : +0s — killing enemies/blocks gives NO time bonus
   Special rules   : • Global one-hit rule applies ✅
                     • Invincibility frames after hit ✅
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
   Attack patterns : TBD — Pacifist Mettaton fight as reference
-  The side-slide mechanic creates a skill gap: players who shoot early
-  eliminate the threat before it becomes un-shootable. Players who miss
-  must then dodge the retaliatory shot from the side.
+  The side-slide creates a hard skill gap: shoot early = neutralize cleanly.
+  Miss = deal with a slow, looming retaliation shot that telegraphs itself
+  by growing large near the box edge. Fair but punishing.
 ```
 
 ---
