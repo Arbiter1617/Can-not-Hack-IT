@@ -49,7 +49,7 @@ window.addEventListener('mousemove', e => {
 // ─── Global Constants ───────────────────────────────────────────────
 const HEART_R          = 8;    // lethal hitbox radius
 const GRAZE_R          = 22;   // outer graze ring
-const BASE_SPEED       = 220;  // px/s
+const BASE_SPEED       = 250;  // px/s
 const FOCUS_MULT       = 0.45;
 const HELL_SCORE_STEP  = 4000; // score threshold per hell transition
 const SCORE_PER_SEC    = 80;   // passive score gain
@@ -317,21 +317,25 @@ class IndicatorSystem {
 // HEART DRAWING
 // ═══════════════════════════════════════════════════════════════════
 function drawHeart(ctx, x, y, size, color, upsideDown = false) {
+  // The raw heart path spans y: -size*0.55 (top) to +size (bottom tip).
+  // Visual centre = (size - size*0.55)/2 - size*0.55/2 ≈ size*0.225 below origin.
+  // We shift up by that amount so the visual centre sits exactly at (x,y),
+  // matching the collision and graze-ring centre.
+  const OY = size * 0.225; // vertical offset to centre the shape
   ctx.save();
   ctx.translate(x, y);
   if (upsideDown) ctx.scale(1, -1);
   ctx.shadowBlur  = 22; ctx.shadowColor = color;
   ctx.fillStyle   = color;
   ctx.beginPath();
-  // Classic heart path centred at (0,0)
-  ctx.moveTo(0, size * 0.35);
-  ctx.bezierCurveTo( size * 0.5, -size * 0.55,  size * 1.25,  size * 0.25, 0,  size);
-  ctx.bezierCurveTo(-size * 1.25,  size * 0.25, -size * 0.5, -size * 0.55, 0,  size * 0.35);
+  ctx.moveTo(0,          size * 0.35  - OY);
+  ctx.bezierCurveTo( size * 0.5,  -size * 0.55 - OY,  size * 1.25,  size * 0.25 - OY, 0,  size - OY);
+  ctx.bezierCurveTo(-size * 1.25,  size * 0.25 - OY, -size * 0.5,  -size * 0.55 - OY, 0,  size * 0.35 - OY);
   ctx.closePath();
   ctx.fill();
   ctx.shadowBlur = 0;
-  // Tiny hitbox ring
-  ctx.beginPath(); ctx.arc(0, size * 0.55, HEART_R, 0, TWO_PI);
+  // Hitbox ring — at (0,0) = the collision centre
+  ctx.beginPath(); ctx.arc(0, 0, HEART_R, 0, TWO_PI);
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.stroke();
   ctx.restore();
 }
@@ -420,10 +424,10 @@ class DodgeHell extends HellBase {
 
     if (this.fireTimer >= this._fireRate) {
       this.fireTimer = 0;
-      // Pick a random pattern — wall+gap fires at half rate to give more breathe room
+      // Pick a random pattern — wall+gap fires at low rate to give breathe room
       const roll = Math.random();
-      if (roll < 0.18) {
-        this._wallGap();           // ~18% chance — wall has its own longer indicator
+      if (roll < 0.08) {
+        this._wallGap();           // ~8% chance — wall has its own longer indicator
       } else {
         // Pick randomly from the other 5 patterns
         const fast = [this._spread, this._ring, this._cross, this._spiral, this._aimed];
@@ -737,27 +741,12 @@ class GameDirector {
   }
 
   _drawHUD(ctx, W, H) {
-    // Score bar at the very bottom
-    const barW  = W * 0.55;
-    const barX  = (W - barW) / 2;
-    const barY  = H - 28;
-    const barH  = 6;
-    const nextAt = (Math.floor(score / HELL_SCORE_STEP) + 1) * HELL_SCORE_STEP;
-    const ratio  = (score % HELL_SCORE_STEP) / HELL_SCORE_STEP;
-
-    ctx.fillStyle = '#111'; ctx.fillRect(barX, barY, barW, barH);
-    ctx.fillStyle = '#2255cc'; ctx.fillRect(barX, barY, barW * ratio, barH);
-    ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
-    ctx.strokeRect(barX, barY, barW, barH);
-
-    // Score text
-    ctx.fillStyle = '#555'; ctx.font = '11px "Courier New"';
+    // Score at the very bottom — plain text, no bar
+    ctx.fillStyle = '#444'; ctx.font = '11px "Courier New"';
     ctx.textAlign = 'center';
     ctx.fillText(
-      'SCORE  ' + Math.floor(score) +
-      '   |   HELL ' + (this.hellIdx + 1) +
-      '   |   NEXT  −' + Math.floor(nextAt - score),
-      W / 2, H - 34
+      'SCORE  ' + Math.floor(score) + '   |   HELL  ' + (this.hellIdx + 1),
+      W / 2, H - 14
     );
     ctx.textAlign = 'left';
   }
