@@ -1,28 +1,32 @@
 'use strict';
 // ═══════════════════════════════════════════════════════════════════
-// HEART DRAWING
-// Two rings are always drawn at (x, y):
-//   • White ring  — HEART_R  — lethal hitbox
-//   • Blue ring   — GRAZE_R  — near-miss zone  (drawn in director.js)
+// HEART DRAWING — sleek symmetric design
+//
+// Path is fully symmetric top ↔ bottom: lobes peak at -size, tip at +size.
+// This means the geometric centre is exactly (0,0) = collision centre.
+// Both the white hitbox ring and blue graze ring in director.js
+// are drawn at (hx, hy) — all three are perfectly aligned.
 // ═══════════════════════════════════════════════════════════════════
 function drawHeart(ctx, x, y, size, color, upsideDown = false) {
-  // Bezier path verified:  top of lobes ≈ -size*0.9,  bottom tip = +size
-  // Geometric centre ≈ size*0.05 off (0,0) → effectively centred.
-  const h = size, w = size * 0.9;
+  const h = size;
+  const w = size * 0.68; // narrower lobes → sleeker silhouette
 
   ctx.save();
   ctx.translate(x, y);
   if (upsideDown) ctx.scale(1, -1);
 
-  // Heart fill with glow
-  ctx.shadowBlur = 22; ctx.shadowColor = color;
-  ctx.fillStyle  = color;
+  // Glow
+  ctx.shadowBlur  = 20;
+  ctx.shadowColor = color;
+  ctx.fillStyle   = color;
+
+  // Clockwise from bottom tip
   ctx.beginPath();
-  ctx.moveTo(0, h);                                                     // bottom tip
-  ctx.bezierCurveTo(-w*0.1,  h*0.5, -w*1.3,  h*0.1,  -w, -h*0.2);   // left outer
-  ctx.bezierCurveTo(-w*0.7, -h*0.9,  0,      -h*0.7,   0, -h*0.4);   // left lobe → dip
-  ctx.bezierCurveTo( 0,     -h*0.7,  w*0.7,  -h*0.9,   w, -h*0.2);   // right lobe
-  ctx.bezierCurveTo( w*1.3,  h*0.1,  w*0.1,   h*0.5,   0,  h);       // right outer → tip
+  ctx.moveTo(0, h);                                                    // bottom tip ↓
+  ctx.bezierCurveTo( w*0.08,  h*0.52,  w*1.20,  h*0.05,  w, -h*0.22); // right outer
+  ctx.bezierCurveTo( w*0.80, -h*1.00,  0,       -h*0.78,  0, -h*0.32); // right lobe → dip
+  ctx.bezierCurveTo( 0,      -h*0.78, -w*0.80, -h*1.00, -w, -h*0.22); // left lobe
+  ctx.bezierCurveTo(-w*1.20,  h*0.05, -w*0.08,  h*0.52,  0,  h);      // left outer → tip ↓
   ctx.closePath();
   ctx.fill();
   ctx.shadowBlur = 0;
@@ -30,7 +34,7 @@ function drawHeart(ctx, x, y, size, color, upsideDown = false) {
   // Lethal hitbox ring — white, centred at collision point (0, 0)
   ctx.beginPath();
   ctx.arc(0, 0, HEART_R, 0, TWO_PI);
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.40)';
   ctx.lineWidth   = 1.5;
   ctx.stroke();
 
