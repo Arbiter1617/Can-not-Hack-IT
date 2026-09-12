@@ -470,25 +470,42 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 12. Typing Test Hell 🔴
-*Screen locks, type WASD-only words (WAS, SAD, DAD, SAW...)*
+## 12. Typing Test Hell 🟡 *(heart color + bullet state TBD)*
+*30-character WASD string — hidden correct counter, +3s rewards, -1s on mistake*
 
 ```
-Heart Color       : ❓
-Boundary          : ❓ (screen locked)
+Heart Color       : TBD
 ─────────────────────────────────────────────────────────
-ATTACKS
-  Patterns        : Text sequences appear on screen
-  Projectile Types: N/A — input-based
-  Indicators      : Words displayed in background layer
+WARNING INDICATOR
+  Trigger         : Random red flicker from TOP of screen
+  Text            : "BE READY" flashes before the string appears
+  Feel            : Sudden, disorienting — not a slow buildup
+─────────────────────────────────────────────────────────
+STRING RULES
+  Length          : Exactly 30 characters
+  Characters      : W, A, S, D only + single spaces
+  Space rules     : No adjacent spaces allowed
+                    Multiple spaces allowed throughout the string
+  Time limit      : 5 seconds — then hell ends and next hell begins regardless
+─────────────────────────────────────────────────────────
+CORRECT COUNTER (HIDDEN from player)
+  Mechanic        : Internal counter tracking consecutive correct keypresses
+  Reward          : Every 8 consecutive correct characters → +3s
+                    Counter resets to 0 after each reward trigger
+  On wrong key    : −1s immediately + counter resets to 0
+  Visibility      : Counter is NEVER shown to player — purely felt through timing
 ─────────────────────────────────────────────────────────
 TIMER ECONOMY
-  Near Miss +time : ❓
-  Hit −time       : ❓ (mistake = time penalty?)
-  Special rules   : Perfect typing = time bonus?
+  8 correct streak  : +3s (hidden milestone)
+  Wrong character   : −1s + correct counter reset
+  Timer running     : TBD — paused like Shield Hell or ticking during typing?
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
-  Keys restricted to W, A, S, D, Spacebar only
+  Bullets during typing : TBD — still flying or frozen?
+  The hidden counter creates natural risk/reward — players who panic-correct
+  after a mistake lose more time than players who stay calm and rebuild streak.
+  "BE READY" flicker gives just enough warning to shift mental focus
+  from dodging to typing without being generous.
 ```
 
 ---
