@@ -20,7 +20,7 @@ class GameDirector {
     // ── Hell registry — add new hells here as they are built ────────
     this.hells = [
       new DodgeHell(this),
-      // new ShieldHell(this),
+      new ShieldHell(this),
       // new StringHell(this),
       // ...
     ];
@@ -104,14 +104,16 @@ class GameDirector {
     // iFrames
     if (this.iframes > 0) this.iframes -= dt;
 
-    // Heart movement — WASD, Shift = focus
-    const focused = Keys['ShiftLeft'] || Keys['ShiftRight'];
-    const spd     = BASE_SPEED * (focused ? FOCUS_MULT : 1);
-    if (Keys['KeyA'] || Keys['ArrowLeft'])  this.hx -= spd * dt;
-    if (Keys['KeyD'] || Keys['ArrowRight']) this.hx += spd * dt;
-    if (Keys['KeyW'] || Keys['ArrowUp'])    this.hy -= spd * dt;
-    if (Keys['KeyS'] || Keys['ArrowDown'])  this.hy += spd * dt;
-    this._constrain();
+    // Heart movement — skipped if hell uses WASD for its own controls
+    if (this.currentHell.heartMovable !== false) {
+      const focused = Keys['ShiftLeft'] || Keys['ShiftRight'];
+      const spd     = BASE_SPEED * (focused ? FOCUS_MULT : 1);
+      if (Keys['KeyA'] || Keys['ArrowLeft'])  this.hx -= spd * dt;
+      if (Keys['KeyD'] || Keys['ArrowRight']) this.hx += spd * dt;
+      if (Keys['KeyW'] || Keys['ArrowUp'])    this.hy -= spd * dt;
+      if (Keys['KeyS'] || Keys['ArrowDown'])  this.hy += spd * dt;
+      this._constrain();
+    }
 
     // Hell logic
     this.currentHell.update(dt);
