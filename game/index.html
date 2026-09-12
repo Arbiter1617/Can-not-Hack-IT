@@ -16,9 +16,21 @@
       user-select: none;
     }
     canvas { display: block; cursor: none; }
+    #back-btn {
+      position: fixed;
+      top: 10px; left: 12px;
+      font: 10px "Courier New", monospace;
+      color: #333;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      z-index: 10;
+      transition: color 0.2s;
+    }
+    #back-btn:hover { color: #888; }
   </style>
 </head>
 <body>
+<a id="back-btn" href="../Start Page/index.html">← MENU</a>
 <canvas id="c"></canvas>
 
 <!--
