@@ -435,25 +435,37 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 11. Hole in the Wall Hell 🔴
-*Giant walls approach with one randomized gap — align heart with gap*
+## 11. Hole in the Wall Hell 🟢 *(patterns TBD — core design LOCKED)*
+*Giant walls with one gap — align heart or take damage*
 
 ```
-Heart Color       : ❓
-Boundary          : ❓
+Heart Color       : ❤️  Classic Red
+Boundary          : Side walls only (left + right screen edges)
+                    Top and bottom are OPEN — that's where walls come from
 ─────────────────────────────────────────────────────────
-ATTACKS
-  Patterns        : Walls with single gap, increasing speed
-  Projectile Types: Screen-spanning walls
-  Indicators      : ❓ (does the gap flash/highlight?)
+WALL BEHAVIOR
+  Phase 1         : Walls approach from the TOP only
+  Phase 2         : After a time threshold — walls alternate TOP and BOTTOM
+                    (can have a top wall and bottom wall both on screen)
+  Gap             : Single gap per wall — PURE ABSENCE of wall, no highlight
+                    Gap size stays FIXED — only speed increases over time
+  Simultaneous    : Multiple walls on screen at once — shorter intervals
+                    between spawns as difficulty increases
+  Speed scaling   : Logarithmic increase over 30s–1min runtime
 ─────────────────────────────────────────────────────────
 TIMER ECONOMY
-  Near Miss +time : ❓ (threading the gap close?)
-  Hit −time       : ❓
-  Special rules   : ❓
+  Thread gap      : +1s — threading through the gap (near miss style)
+  Hit −time       : −5s
+  Special rules   : • Invincibility frames active after each hit ✅
+                    • Wall collision is NOT instant fail — just time penalty
+                    • Global one-hit rule applies ✅
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
-  Runtime: 30s–1min, walls speed up logarithmically
+  Patterns        : TBD — discuss at end of all hells
+  Indicators      : TBD — discuss at end of all hells
+  The pure absence gap keeps it visually clean — no hand-holding.
+  Phase 2 alternating top+bottom walls forces the player to track
+  two approach directions simultaneously.
 ```
 
 ---
