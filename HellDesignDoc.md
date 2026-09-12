@@ -1,272 +1,465 @@
-﻿# Infinite Heart — Hell Mode Design Document
-### Team: Cant Hack It | Track 1 — Game | CYHI Hackathon
+# ♥ Infinite Heart — Hell Mode Design Tracker
+
+> This document is filled in one hell at a time during design sessions.
+> Status: 🔴 Not discussed | 🟡 In progress | 🟢 Locked in
 
 ---
 
-## STATUS OVERVIEW
+## Standard Merged Pool
 
-| # | Hell Mode | Heart Color | Status |
-|---|-----------|-------------|--------|
-| 1 | Dodge Hell | Red | Core locked, patterns TBD |
-| 2 | Shield Hell | Green | Locked (indicators TBD) |
-| 3 | String Hell | Purple | Locked (indicators TBD) |
-| 4 | Gravity Hell | Dark Blue | Locked (patterns + indicators TBD) |
-| 5 | Laser Hell | Red | Locked (patterns TBD) |
-| 6 | Projectile Hell | Red | Locked (patterns TBD, identical to Dodge Hell) |
-| 7 | Fruit Ninja Hell | Inherits active hell | Mostly locked (watch count + range TBD) |
-| 8 | Shooter Hell | Yellow | Not discussed |
-| 9 | Kamikaze Hell | TBD | Not discussed |
-| 10 | Dark Maze Hell | TBD | Not discussed |
-| 11 | Hole in the Wall Hell | TBD | Not discussed |
-| 12 | Typing Test Hell | TBD | Not discussed |
-| 13 | Music Hell (Boss) | TBD | Not discussed |
+| # | Hell | Heart Color | Status |
+|---|------|-------------|--------|
+| 1 | **Dodge Hell** | 🔴 Red | 🔴 |
+| 2 | **Shield Hell** | ❓ TBD | 🔴 |
+| 3 | **String Hell** | ❓ TBD | 🔴 |
+| 4 | **Gravity Hell** | 🔵 Dark Blue | 🔴 |
+| 5 | **Laser Hell** | ❓ TBD | 🔴 |
+| 6 | **Projectile Hell** | ❓ TBD | 🔴 |
+| 7 | **Fruit Ninja Hell** | ❓ TBD | 🔴 |
+| 8 | **Shooter Hell** | 🟡 Yellow | 🔴 |
 
----
+## Breakout Modes
 
-## GLOBAL RULES
-
-- One hit per projectile - a single projectile can only damage the player once
-- One near-miss per projectile - time bonus triggers once per projectile lifetime
-- No multi-hit attacks - no attack counts as more than one hit instance
-- Invincibility frames - active after every hit
-- Input constraints (Track 1) - only WASD, Shift, Space, and cursor swipe allowed
+| # | Hell | Heart Color | Status |
+|---|------|-------------|--------|
+| 9  | **Kamikaze Hell** | ❓ TBD | 🔴 |
+| 10 | **Dark Maze Hell** | ❓ TBD | 🔴 |
+| 11 | **Hole in the Wall Hell** | ❓ TBD | 🔴 |
+| 12 | **Typing Test Hell** | ❓ TBD | 🔴 |
+| 13 | **Music Hell (Boss)** | ❓ TBD | 🔴 |
 
 ---
 
-## STANDARD MERGED POOL
+## Design Template (filled per hell)
+
+```
+HELL NAME
+─────────────────────────────────────────────────────────
+Heart Color       :
+Boundary          :
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        :
+  Projectile Types:
+  Indicators      :
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time :
+  Hit −time       :
+  Special rules   :
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+```
 
 ---
 
-### 1. DODGE HELL
-Reference: Undertale red heart - purest form of movement
+## 1. Dodge Hell 🟡 *(attack patterns TBD)*
+*Reference: Undertale red heart — pure 8-way movement, no restrictions*
 
-Heart Color: Classic Red
-Boundary: Largest possible square centered on screen, no visible walls
-
-Attack Indicators: Flash at spawn position + exclamation mark + brief flicker BEFORE projectile spawns
-Attack Patterns: TBD
-Projectile Types: TBD
-
-Timer Economy:
-- Near miss (graze): +1s
-- Hit: -6s
-
-Notes: Baseline hell - no mechanic restrictions, pure movement skill. Both hit and near-miss flags are per-bullet lifetime.
-
----
-
-### 2. SHIELD HELL
-Reference: Undyne from Undertale
-
-Heart Color: Green
-Shield: Light blue curved arc, snaps to Up/Down/Left/Right
-
-Boundary - TWO ZONES:
-- Outer Zone: Full large square - arrows spawn from edges
-- Inner Zone: Small box at screen center - heart LOCKED here, player only controls shield direction
-
-Projectile Types:
-- Cyan Arrow: Normal, points toward heart, straight-line. Block with correct shield side.
-- Yellow Arrow: Deceptive. Faces OPPOSITE direction of travel. Spawns one side, mid-flight snaps to attack from OPPOSITE side. Player must read fake-out and flip shield.
-
-Attack Indicators: TBD
-
-Timer Economy:
-- Timer: FROZEN - clock does not tick during Shield Hell
-- Correct block: No reward, zero time gain
-- Hit: -1s per arrow
-- Near miss: N/A (timer paused)
-
-Special Rules: Pure penalty phase - cannot gain time. Yellow arrow path-switch is the core skill test. One hit per arrow.
+```
+Heart Color       : ❤️  Classic Red
+Boundary          : Largest possible square centered on screen (no visible walls,
+                    just a movement limit — uses full screen real estate)
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        : 🔴 TBD — discuss at end of all hells
+  Projectile Types: 🔴 TBD
+  Indicators      : ❗ Flash at spawn position + exclamation mark + brief flicker
+                    before projectile appears (warn BEFORE they spawn in)
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : +1s
+  Hit −time       : −6s
+  Special rules   : • One projectile can only HIT the player once (no re-hit)
+                    • One projectile can only trigger near-miss ONCE
+                    • Both flags are per-bullet lifetime
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Purest form — no gimmicks, just movement skill.
+  The baseline all other hells are measured against.
+```
 
 ---
 
-### 3. STRING HELL
-Reference: Muffet from Undertale
+## 2. Shield Hell 🟢 *(indicators TBD — core design LOCKED)*
+*Reference: Undyne from Undertale — directional shield orbiting heart*
 
-Heart Color: Purple
-Boundary: Horizontal rectangle at center - short vertically, long horizontally. Height grows as strings are added.
+```
+Heart Color       : 💚 Green (Undertale green heart)
+Shield            : Light Blue curved arc — 4 directional (Up/Down/Left/Right)
+Boundary          : TWO zones:
+                    • OUTER zone: Full large square (same as Dodge Hell) — arrows
+                      SPAWN from the edges of this boundary
+                    • INNER zone: Small box at screen CENTER — heart is LOCKED
+                      here, cannot leave. Player only controls shield direction.
+─────────────────────────────────────────────────────────
+ATTACKS
+  Projectile Types:
+    [CYAN ARROW]   Normal. Points toward heart. Straight-line path directly
+                   into the inner box. Block with correct shield side.
 
-String Layout:
-- Phase 1: 3 strings
-- Phase 2: 5 strings (1 top, 1 bottom added, boundary expands)
-- Climbing Sub-Phase: 8-9 strings (final attack before hell ends)
+    [YELLOW ARROW] Deceptive. Faces the OPPOSITE direction of travel (looks
+                   like it's going away). Spawns from one side but MID-FLIGHT
+                   snaps/curves to attack from the OPPOSITE side.
+                   e.g. Spawns LEFT side → switches → hits from RIGHT.
+                   Player must read the fake-out and flip their shield.
 
-Movement: Free X-axis. Y-axis locked - Up/Down snaps to adjacent string instantly.
-
-Projectile Types:
-- Spider: Horizontal across one string lane. Snap to different string to dodge.
-- Bouncing Ball: Diagonal, bounces off top and bottom walls, crosses multiple lanes.
-- Boomerang: Along one string to far wall, reverses, returns. Dodge twice.
-- Large Bomb: 5-string phase only. Covers 3 adjacent strings. Long countdown. Single hit (-6s).
-
-Attack Indicators: TBD
-
-Timer Economy:
-- Near miss: +2s
-- Hit: -6s
-
-Climbing Sub-Phase (final attack):
-- 8-9 strings scrolling DOWNWARD continuously
-- Monster at bottom has pulling animation - strings move, monster stays still
-- Contact with monster = normal hit (-6s), soft floor not a wall
-- Player must keep snapping UP to survive
-
----
-
-### 4. GRAVITY HELL
-Reference: Sans dark blue heart - platformer physics
-
-Heart Color: Dark Blue
-Boundary: Rectangle at center with solid floor and ceiling (visible walls)
-
-Movement:
-- A/D: Left/Right
-- W or Space (tap): Small hop
-- W or Space (hold): Full jump - height scales with hold duration up to a cap
-- Single jump only, no double jump
-
-Projectile Types: Arrow-type spikes
-
-Special Attack Modifiers:
-- Platforms: Appear as landing surfaces in certain attacks
-- Gravity Flip: Gravity reverses in certain attacks, heart rotates, floor becomes ceiling
-
-Attack Patterns: TBD
-Attack Indicators: TBD
-
-Timer Economy:
-- Near miss: +2s
-- Hit: -5s
-
-Special Rules: Invincibility frames after each hit. One projectile = one hit max.
+  Indicators      : 🔴 TBD — discuss at end of all hells
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Timer Behavior  : ⏸ PAUSED — clock does NOT tick down during Shield Hell
+  Near Miss +time : N/A (timer paused, no graze mechanic)
+  Hit −time       : −1s per arrow that hits the heart
+  Block +time     : ✅ NONE — Shield Hell is a pure penalty phase. You cannot
+                    gain time here under any circumstance. Only lose.
+  Special rules   : • Each arrow can only register one hit
+                    • Yellow arrow path-switch is the core skill expression
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Paused timer reframes this as a PENALTY phase — can't gain time, only
+  protect what you already have. Punishes careless blocking.
+  Yellow arrow is the bluff — punishes pure muscle memory.
+```
 
 ---
 
-### 5. LASER HELL
-Reference: No Humanity - telegraphed beams
+## 3. String Hell 🟢 *(indicators TBD — core design LOCKED)*
+*Reference: Muffet from Undertale — Y-axis locked to strings, free X movement*
 
-Heart Color: Classic Red (same as Dodge Hell)
-Boundary: ENTIRE SCREEN - no box, full play area
+```
+Heart Color       : 💜 Purple
+Boundary          : Horizontal rectangle at screen center
+                    • SHORT vertically (breadth), LONG horizontally
+                    • Breadth GROWS as more strings are added to fit new lanes
+─────────────────────────────────────────────────────────
+STRING LAYOUT (progression)
+  Phase 1         : 3 strings (start)
+  Phase 2         : 5 strings (1 added top + 1 added bottom, boundary expands)
+  Special Attack  : 8–9 strings — all scrolling DOWNWARD continuously.
+                    Player must keep climbing UP to avoid falling off.
+                    A MONSTER waits at the bottom — touching it = ❓ (see below)
+─────────────────────────────────────────────────────────
+ATTACKS
+  [SPIDER]        : Travels horizontally across a specific string lane.
+                    Player must snap to a different string to dodge.
 
-Lasers: Multiple fire SIMULTANEOUSLY - overwhelm the screen in a balanced way. Players must read 2-4+ telegraphs at once.
+  [BOUNCING BALL] : Moves diagonally, bounces off top and bottom walls of
+                    the boundary. Crosses multiple string lanes — timing-based.
 
-Telegraph System:
-- Warning (1.5s): Faint line at laser position glows BRIGHTER as countdown progresses
-- Fire (0.5s): Laser expands into full lethal beam
+  [BOOMERANG]     : Travels along a single string, reaches the far wall,
+                    and returns on the same string. Must dodge twice.
 
-Safe Gaps: NOT always guaranteed. Some patterns intentionally brutal - player must reposition DURING telegraph window to reach safety.
+  [LARGE BOMB]    : Only spawns at 5-string phase. Covers 3 adjacent strings
+                    simultaneously. One bomb at a time. Has a long visible
+                    detonation countdown before exploding. Player must vacate
+                    all 3 covered strings before detonation.
 
-Laser Directions: TBD
-Attack Patterns: TBD
+  Indicators      : 🔴 TBD — discuss at end of all hells
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : +2s
+  Hit −time       : −6s
+  Special rules   : • One projectile hits once, near-miss triggers once
+                    • Bomb = single hit (−6s), not multi-hit ✅
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  CLIMBING SUB-PHASE: Triggers as the FINAL attack before String Hell ends and
+    transitions to the next hell. Plays for a fixed duration then exits.
+    • 8–9 strings rendered, all scrolling DOWNWARD continuously
+    • Monster sits stationary at the BOTTOM — it has a PULLING animation,
+      visually dragging the strings downward (strings move, monster doesn't)
+    • Contact with monster = normal hit (−6s), it is a soft floor, not a wall
+    • Player must keep snapping UP to stay alive as strings scroll down beneath them
 
-Timer Economy:
-- Near miss (graze): +1s (same as Dodge Hell)
-- Hit: -6s (same as Dodge Hell)
-
-Graze Rule: Near miss ONLY counts AFTER laser has FIRED. Telegraph line does NOT give time. Must thread edge of live, active beam.
-
----
-
-### 6. PROJECTILE HELL
-Reference: Touhou/Danmaku - treat as direct sub-mode of Dodge Hell
-
-Heart Color: Classic Red (identical to Dodge Hell)
-Boundary: Largest possible square (identical to Dodge Hell)
-Attack Indicators: Flash + exclamation mark + flicker (identical to Dodge Hell)
-
-Projectile Types: Knives, Bombs, Orbs - dense Danmaku-style patterns
-Attack Patterns: TBD
-
-Timer Economy:
-- Near miss: +1s (identical to Dodge Hell)
-- Hit: -6s (identical to Dodge Hell)
-
-Notes: Every aspect mirrors Dodge Hell. Only differentiator is projectile variety and density. Can be merged with Dodge Hell by the Director.
-
----
-
-### 7. FRUIT NINJA HELL (Pocket Watch Overlay)
-Parallel override - runs on top of ALL other hells simultaneously
-
-Heart Color: Inherits active hell's color, no override
-Boundary: ENTIRE SCREEN always, independent of active hell
-
-Core Concept: NO penalties whatsoever. Pure bonus/freebie layer. Player can engage for extra time or ignore entirely.
-
-Entities - Pocket Watches With Wings:
-- Visual: Pocket watches with animated flapping wings, time bonus printed on face (+10, +15 etc.)
-- Movement: Fly from one side to other with random fluttering up/down path
-- On slice: Watch destroyed, player gains printed bonus time
-- On miss: Flies off screen, no penalty
-- Bonus range: Up to +15s max (exact range TBD)
-- Count on screen: TBD
-
-Slicing Input:
-- Mechanic: Cursor swipe/drag gesture, NO click required
-- Cursor trail: White slashing trail follows cursor (behavior TBD - always visible or only on fast swipe)
-- Slice detection: Swipe must intersect watch hitbox
-- One slice per watch
-
-Timer Economy:
-- Watch sliced: Gain bonus time on face
-- Watch missed: +0s, no penalty
-- Bullet dodging: Inherits values of currently active hell
-
-Notes: Pocket watch visual reinforces time loop theme - literally catching time mid-flight.
+  GLOBAL RULE (confirmed): No attack in any hell ever counts as multiple hits.
+    One attack instance = one hit maximum, always.
+```
 
 ---
 
-### 8. SHOOTER HELL
-Reference: Mettaton from Undertale - yellow heart, offensive gameplay
+## 4. Gravity Hell 🟢 *(attack patterns TBD — core design LOCKED)*
+*Reference: Sans dark blue heart — platformer physics, gravity + jump*
 
-Heart Color: Yellow
-Boundary: TBD
-Projectile Types: Destructible blocks/enemy waves
-Attack Patterns: TBD
-Timer Economy: TBD
-
----
-
-## BREAKOUT MODES
-
----
-
-### 9. KAMIKAZE HELL
-Heart Color: TBD | Boundary: Infinite auto-scroll right
-Mechanics: Planes drop from top. Dash (Space/Shift) gives i-frames forward.
-Timer Economy: TBD
-
----
-
-### 10. DARK MAZE HELL
-Reference: Jackenstein from Deltarune
-Heart Color: TBD | Boundary: Maze walls
-Mechanics: Global darkness. Radial light follows heart. Static and moving walls. Navigate to exit.
-Timer Economy: TBD
-
----
-
-### 11. HOLE IN THE WALL HELL
-Heart Color: TBD | Boundary: TBD
-Mechanics: Screen-spanning walls with one random gap approach rapidly. Align heart with gap. Speed increases logarithmically over 30s-1min.
-Timer Economy: TBD
-
----
-
-### 12. TYPING TEST HELL
-Heart Color: TBD
-Mechanics: Screen locks. Type WASD-only words (WAS, SAD, DAD, SAW, WAD...). Input: W, A, S, D, Space only.
-Timer Economy: TBD
+```
+Heart Color       : 🔵 Dark Blue
+Boundary          : Rectangle at screen center with SOLID floor and ceiling
+                    (visible walls — heart cannot pass through top or bottom)
+─────────────────────────────────────────────────────────
+MOVEMENT SYSTEM
+  Left / Right    : A / D keys — free horizontal movement
+  Jump            : W or Space — VARIABLE HEIGHT based on hold duration
+                    Short press = small hop | Hold = full height jump
+                    Maximum height cap enforced
+  Single jump     : No double jump — one jump per airborne phase
+─────────────────────────────────────────────────────────
+ATTACKS
+  Projectile Types: Arrow-type spikes
+  Platforms       : YES — appear in certain attacks as landing surfaces
+  Gravity Flip    : YES — gravity reverses in certain attacks
+                    (floor becomes ceiling, heart rotates to reflect direction)
+  Patterns        : 🔴 TBD — discuss at end of all hells
+  Indicators      : 🔴 TBD — discuss at end of all hells
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : +2s
+  Hit −time       : −5s
+  Special rules   : • Invincibility frames active after each hit ✅
+                    • One projectile = one hit maximum (global rule) ✅
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Variable jump height adds a skill ceiling — players can precision-hop
+  under low spikes or full-jump over tall barriers.
+  Gravity flip attacks force the player to mentally remap controls
+  (new floor = new frame of reference for jumping).
+```
 
 ---
 
-### 13. MUSIC HELL (BOSS MODE)
-Heart Color: TBD | Boundary: TBD
-Mechanics: Piano keyboard at bottom. Note blocks fall synced to high-tempo music (Rush E, Isaac Newton Theme). Dense rhythm-synced barrage.
-Timer Economy: TBD
+## 5. Laser Hell 🟢 *(patterns TBD — core design LOCKED)*
+*Reference: No Humanity — telegraphed beams, spatial awareness over reaction*
+
+```
+Heart Color       : ❤️  Classic Red (same as Dodge Hell)
+Boundary          : ENTIRE SCREEN — no box, full play area
+─────────────────────────────────────────────────────────
+ATTACKS
+  Projectile Types: Lasers — multiple firing SIMULTANEOUSLY
+                    Designed to overwhelm the screen in a balanced way
+  Directions      : TBD — discuss at end of all hells
+  Patterns        : TBD — discuss at end of all hells
+─────────────────────────────────────────────────────────
+TELEGRAPH SYSTEM
+  Phase 1 (warn)  : Faint line appears at laser position
+                    Line GLOWS BRIGHTER as the countdown progresses
+                    (visual pressure builds — player reads the room and moves)
+  Phase 2 (fire)  : Laser expands into a full lethal beam — 0.5s active
+  Safe gaps       : NOT guaranteed — some patterns are intentionally brutal.
+                    Player may NEED to reposition DURING the telegraph window
+                    to find safety before the beam fires.
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : +1s (same as Dodge Hell)
+  Hit −time       : −6s (same as Dodge Hell)
+  Graze rule      : Near miss ONLY triggers AFTER the laser has FIRED.
+                    Grazing a telegraph line does NOT count.
+                    Must thread the edge of a live, active beam.
+  Special rules   : • One laser = one hit maximum (global rule) ✅
+                    • Graze flag per laser per fire cycle
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  The "graze only on a live beam" rule raises the skill ceiling significantly —
+  you earn +time by threading the edge of a beam that could instantly kill you.
+  The overwhelm-by-design philosophy: multiple simultaneous lasers means
+  the screen is never quiet. Players must read 2–4+ telegraphs at once
+  and plan their path before any of them fire.
+```
 
 ---
 
-Document version: Session 1 - Hells 1-7 in progress | Last updated by: Antigravity AI
-Team Cant Hack It - CYHI Track 1
+## 6. Projectile Hell 🟢 *(patterns TBD — core design LOCKED)*
+*Reference: Touhou/Danmaku — dense math-driven patterns. Treat as a sub-mode of Dodge Hell.*
+
+```
+Heart Color       : ❤️  Classic Red (identical to Dodge Hell)
+Boundary          : Largest possible square centered on screen (identical to Dodge Hell)
+─────────────────────────────────────────────────────────
+ATTACKS
+  Projectile Types: Knives, Bombs, Orbs (Normal projectiles — linear velocity)
+                    Dense patterns: spirals, sine waves, shotgun bursts
+  Patterns        : 🔴 TBD — discuss at end of all hells
+  Indicators      : ❗ Flash at spawn position + exclamation mark + brief flicker
+                    (identical to Dodge Hell indicator system)
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : +1s (identical to Dodge Hell)
+  Hit −time       : −6s (identical to Dodge Hell)
+  Special rules   : • One projectile hits once, near-miss triggers once (global rule) ✅
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Functionally a sub-mode of Dodge Hell — same rules, same feel.
+  Only difference is projectile variety and pattern density (Touhou/Danmaku style).
+  Can be merged with Dodge Hell by the Director or run in isolation.
+```
+
+---
+
+## 7. Fruit Ninja Hell 🟢 *(core design LOCKED)*
+*Parallel override — runs on top of ALL other hells simultaneously*
+
+```
+Heart Color       : Inherits active hell's color — no override
+Boundary          : ENTIRE SCREEN — always, independent of active hell's boundary
+─────────────────────────────────────────────────────────
+CORE CONCEPT
+  This hell has NO penalties of any kind. It is a pure BONUS / FREEBIE layer.
+  It runs independently and in parallel with whatever hell is currently active.
+  The player can choose to engage with it for extra time or ignore it entirely.
+  RARITY: Only triggers AFTER a certain score milestone is reached.
+           Very rare occurrence — a genuine reward moment, not a constant distraction.
+─────────────────────────────────────────────────────────
+ENTITIES — POCKET WATCHES WITH WINGS
+  Visual          : Pocket watches with animated wings, time bonus written on face
+  Movement        : Fly from one side of screen to other, fluttering up/down randomly
+  Count on screen : 1 at a time — only one watch ever flies at once
+  On slice        : Watch destroyed — player gains bonus time printed on face
+  On miss         : Watch flies off screen — NO penalty, just lost opportunity
+  Bonus range     : +8s to +15s (random within range per watch)
+─────────────────────────────────────────────────────────
+SLICING INPUT
+  Mechanic        : Cursor swipe — directional drag gesture, NO click required
+  Cursor trail    : White slashing trail ALWAYS visible when mouse moves (not just fast swipes)
+  Slice detection : Swipe must intersect the watch hitbox to register
+  One slice only  : Each watch can only be sliced once
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Watch sliced    : +8s to +15s (value shown on watch face)
+  Watch missed    : +0s — no penalty, ever
+  Bullet dodging  : Inherits near-miss and hit values of the currently active hell
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Pocket watch visual reinforces the time loop theme — catching time mid-flight.
+  Score-gated rarity makes each appearance feel like a meaningful event.
+  Always-on cursor trail adds a satisfying feel to mouse movement even between slices.
+```
+
+---
+
+## 8. Shooter Hell 🔴
+*Reference: Mettaton — yellow heart, player shoots to destroy incoming blocks*
+
+```
+Heart Color       : 🟡 Yellow (confirmed in GDD)
+Boundary          : ❓
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        : ❓
+  Projectile Types: Destructible blocks / enemy waves
+  Indicators      : ❓
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : ❓
+  Hit −time       : ❓
+  Special rules   : ❓ (does destroying blocks give +time?)
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  ❓
+```
+
+---
+
+## 9. Kamikaze Hell 🔴
+*Auto-scrolling, planes drop from top, Dash mechanic (Spacebar/Shift)*
+
+```
+Heart Color       : ❓
+Boundary          : ❓
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        : ❓
+  Projectile Types: Falling planes
+  Indicators      : ❓
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : ❓
+  Hit −time       : ❓
+  Special rules   : ❓
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Dash = i-frame burst forward
+```
+
+---
+
+## 10. Dark Maze Hell 🔴
+*Global darkness, small light radius around heart, navigate to exit*
+
+```
+Heart Color       : ❓
+Boundary          : ❓ (maze walls = boundary)
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        : Static + moving wall geometry
+  Projectile Types: Wall collision
+  Indicators      : ❓
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : ❓
+  Hit −time       : ❓
+  Special rules   : Time limit to find exit?
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Reference: Jevil/Jackenstein from Deltarune
+```
+
+---
+
+## 11. Hole in the Wall Hell 🔴
+*Giant walls approach with one randomized gap — align heart with gap*
+
+```
+Heart Color       : ❓
+Boundary          : ❓
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        : Walls with single gap, increasing speed
+  Projectile Types: Screen-spanning walls
+  Indicators      : ❓ (does the gap flash/highlight?)
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : ❓ (threading the gap close?)
+  Hit −time       : ❓
+  Special rules   : ❓
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Runtime: 30s–1min, walls speed up logarithmically
+```
+
+---
+
+## 12. Typing Test Hell 🔴
+*Screen locks, type WASD-only words (WAS, SAD, DAD, SAW...)*
+
+```
+Heart Color       : ❓
+Boundary          : ❓ (screen locked)
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        : Text sequences appear on screen
+  Projectile Types: N/A — input-based
+  Indicators      : Words displayed in background layer
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : ❓
+  Hit −time       : ❓ (mistake = time penalty?)
+  Special rules   : Perfect typing = time bonus?
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Keys restricted to W, A, S, D, Spacebar only
+```
+
+---
+
+## 13. Music Hell — Boss Mode 🔴
+*Piano keyboard bottom, falling note-blocks synced to Rush E / Isaac Newton Theme*
+
+```
+Heart Color       : ❓
+Boundary          : ❓
+─────────────────────────────────────────────────────────
+ATTACKS
+  Patterns        : Note blocks falling in sync with music
+  Projectile Types: Falling key blocks (dense, tempo-synced)
+  Indicators      : Keys light up slightly before note drops?
+─────────────────────────────────────────────────────────
+TIMER ECONOMY
+  Near Miss +time : ❓
+  Hit −time       : ❓
+  Special rules   : ❓
+─────────────────────────────────────────────────────────
+NOTES / SPECIAL MECHANICS
+  Boss mode — most intense phase
+```
+
+---
+
+*Last updated: Session 1 — Design discussion started*
