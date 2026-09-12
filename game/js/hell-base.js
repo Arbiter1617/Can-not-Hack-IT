@@ -28,6 +28,9 @@ class HellBase {
   /** If false, director skips WASD heart movement (hell reads WASD itself) */
   get heartMovable()    { return true; }
 
+  /** If true, the countdown clock is frozen for the duration of this hell */
+  get timerPaused()     { return false; }
+
   /**
    * Bounding box for heart movement.
    * Return { x, y, w, h } to constrain, or null for full screen.

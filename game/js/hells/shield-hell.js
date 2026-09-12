@@ -19,7 +19,8 @@ class ShieldHell extends HellBase {
 
   // ── Hell identity ─────────────────────────────────────────────────
   get heartColor()   { return '#33ff77'; }
-  get heartMovable() { return false; }   // WASD moves shield, not heart
+  get heartMovable() { return false; }
+  get timerPaused()  { return true; }    // clock freezes during Shield Hell
   get cfg()          { return { grazeGain: 0, hitPenalty: 1 }; }
 
   get boundary() {
@@ -31,8 +32,8 @@ class ShieldHell extends HellBase {
   // Arrows spawn faster with score
   get _spawnRate() { return 1.6 - clamp(score / 12000, 0, 1) * 0.85; }
 
-  // Arrow speed scales with score
-  get _arrowSpd()  { return 185 + clamp(score / 280, 0, 140); }
+  // Arrow speed: starts fast, scales up further
+  get _arrowSpd()  { return 265 + clamp(score / 240, 0, 160); }
 
   // ── Lifecycle ─────────────────────────────────────────────────────
   enter() {

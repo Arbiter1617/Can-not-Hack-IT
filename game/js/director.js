@@ -93,8 +93,8 @@ class GameDirector {
       }
     }
 
-    // Clock
-    this.clock.update(dt);
+    // Clock — frozen during hells that pause the timer (e.g. Shield Hell)
+    if (!this.currentHell.timerPaused) this.clock.update(dt);
     if (this.clock.dead) {
       this.state = 'DEAD';
       this.particles.burst(this.hx, this.hy, '#ff3333', 28, 340);
