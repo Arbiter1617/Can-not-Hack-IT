@@ -373,7 +373,7 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 9. Kamikaze Hell 🟡 *(dash key TBD — core design LOCKED)*
+## 9. Kamikaze Hell 🟢 *(patterns TBD — core design LOCKED)*
 *Auto-scrolling side-scroller — planes, gravity, dash*
 
 ```
@@ -385,12 +385,10 @@ Boundary          : ENTIRE SCREEN
 ─────────────────────────────────────────────────────────
 MOVEMENT SYSTEM (gravity-based, same physics as Gravity Hell)
   A / D           : Left / Right movement
-  Jump            : W or Space (TBD — depends on dash key assignment)
-  Dash            : Single tap in current A/D walking direction only
+  W               : Jump only
+  Space           : Dash — single tap in current A/D walking direction ✅
                     Jump direction does NOT count for dash direction
                     Dash grants i-frames for its duration
-  Dash key        : TBD — Option A: Shift=dash, W/Space=jump
-                          Option B: Space=dash, W=jump only
 ─────────────────────────────────────────────────────────
 PLANES (enemies)
   Spawn locations : Top-right half of screen + right side of screen
