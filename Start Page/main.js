@@ -10,7 +10,7 @@
   // Angles are degrees clockwise from 12 o'clock (0deg = top).
   const NODES = [
     { id: 'twelve',     label: '12',           angle: 0,   neutral: true,  action: null },
-    { id: 'play',       label: 'PLAY',         angle: 90,  action: () => go('play.html') },
+    { id: 'play',       label: 'PLAY',         angle: 90,  action: () => go('../game/index.html') },
     { id: 'exit',       label: 'EXIT',         angle: 135, action: () => window.close() },
     { id: 'credits',    label: 'Credits',      angle: 171, action: () => go('credits.html') },
     { id: 'music',      label: 'Music',        angle: 207, action: () => go('music.html') },
