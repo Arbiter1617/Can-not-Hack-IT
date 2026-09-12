@@ -396,7 +396,7 @@ class DodgeHell extends HellBase {
   }
 
   enter() {
-    this.pIdx = 0; this.pTimer = 0; this.fireTimer = 0;
+    this.fireTimer = 0;
     this.spiralAng = 0; this._deferred = [];
   }
 
@@ -415,19 +415,20 @@ class DodgeHell extends HellBase {
   }
 
   update(dt) {
-    this.pTimer    += dt;
     this.spiralAng += dt * 1.9;
     this.fireTimer += dt;
 
-    if (this.pTimer >= this.pDur) {
-      this.pTimer = 0;
-      this.pIdx   = (this.pIdx + 1) % this.PATTERNS.length;
-      this.fireTimer = this._fireRate; // fire immediately on switch
-    }
-
     if (this.fireTimer >= this._fireRate) {
       this.fireTimer = 0;
-      this.PATTERNS[this.pIdx]();
+      // Pick a random pattern — wall+gap fires at half rate to give more breathe room
+      const roll = Math.random();
+      if (roll < 0.18) {
+        this._wallGap();           // ~18% chance — wall has its own longer indicator
+      } else {
+        // Pick randomly from the other 5 patterns
+        const fast = [this._spread, this._ring, this._cross, this._spiral, this._aimed];
+        fast[Math.floor(Math.random() * fast.length)].call(this);
+      }
     }
   }
 
@@ -436,12 +437,6 @@ class DodgeHell extends HellBase {
     ctx.strokeStyle = 'rgba(255,50,50,0.12)';
     ctx.lineWidth   = 1;
     ctx.strokeRect(b.x, b.y, b.w, b.h);
-
-    // Pattern label (faint, top-left corner of boundary)
-    const labels = ['SPREAD','RING','CROSS','SPIRAL','AIMED','WALL+GAP'];
-    ctx.fillStyle = 'rgba(255,80,80,0.18)';
-    ctx.font      = '10px "Courier New"';
-    ctx.fillText(labels[this.pIdx], b.x + 8, b.y + 14);
   }
 
   // ── Pattern A: Spread Shot ──────────────────────────────────────
@@ -547,25 +542,34 @@ class DodgeHell extends HellBase {
 
   // ── Pattern F: Wall + Gap ───────────────────────────────────────
   _wallGap() {
-    const b      = this._bnd();
+    const b       = this._bnd();
     const fromTop = Math.random() > 0.5;
-    const spd    = 158 + clamp(score / 350, 0, 68);
-    const step   = 30;
-    const cols   = Math.floor(b.w / step);
-    const gapN   = Math.random() > 0.55 ? 2 : 1;
-    const gaps   = new Set();
-    while (gaps.size < gapN) gaps.add(Math.floor(Math.random() * cols));
+    const spd     = 148 + clamp(score / 350, 0, 60);
+    const step    = 28;
+    const cols    = Math.floor(b.w / step);
+
+    // Always 2 adjacent gaps so wall is guaranteedly dodgable
+    // Gap cluster can be anywhere across the full width
+    const gapStart = Math.floor(Math.random() * (cols - 2));
+    const gaps     = new Set([gapStart, gapStart + 1]);
+
     const wallY  = fromTop ? b.y : b.y + b.h;
     const vyDir  = fromTop ? spd : -spd;
+
+    // Long indicator — 1.5s warning (wall fires after 1.5s)
     for (let i = 0; i < cols; i++) {
       if (gaps.has(i)) continue;
-      this.indicators.add(b.x + i * step + step / 2, wallY, 0.75);
+      this.indicators.add(b.x + i * step + step / 2, wallY, 1.5);
     }
-    this._defer(750, () => {
+
+    this._defer(1500, () => {
       for (let i = 0; i < cols; i++) {
         if (gaps.has(i)) continue;
-        this.pool.spawn({ x: b.x + i * step + step / 2, y: wallY,
-          vx: 0, vy: vyDir, r: step / 2 - 2, color: '#aa44ff', life: 6 });
+        this.pool.spawn({
+          x: b.x + i * step + step / 2, y: wallY,
+          vx: 0, vy: vyDir,
+          r: step / 2 - 2, color: '#aa44ff', life: 6
+        });
       }
     });
   }
@@ -713,17 +717,17 @@ class GameDirector {
         this.currentHell.heartColor, this.currentHell.heartUpsideDown);
     }
 
-    // Graze ring (visible in focus mode)
-    if (Keys['ShiftLeft'] || Keys['ShiftRight']) {
-      ctx.beginPath();
-      ctx.arc(this.hx, this.hy, GRAZE_R, 0, TWO_PI);
-      ctx.strokeStyle = 'rgba(255,255,255,0.28)';
-      ctx.lineWidth = 1; ctx.stroke();
-    }
+    // Graze ring — always visible, blue, pulses brighter in focus mode
+    const focused = Keys['ShiftLeft'] || Keys['ShiftRight'];
+    ctx.beginPath();
+    ctx.arc(this.hx, this.hy, GRAZE_R, 0, TWO_PI);
+    ctx.strokeStyle = focused ? 'rgba(80,160,255,0.65)' : 'rgba(60,120,255,0.30)';
+    ctx.lineWidth   = focused ? 1.5 : 1;
+    ctx.stroke();
 
     // HUD
     this.clock.draw(ctx, W);
-    this._drawHUD(ctx, W);
+    this._drawHUD(ctx, W, H);
 
     // Hell-transition white flash
     if (this.flashAlpha > 0) {
@@ -732,13 +736,29 @@ class GameDirector {
     }
   }
 
-  _drawHUD(ctx, W) {
-    ctx.fillStyle = '#333'; ctx.font = '11px "Courier New"';
-    ctx.textAlign = 'right';
-    ctx.fillText('SCORE  ' + Math.floor(score), W - 12, 18);
-    ctx.fillText('HELL   ' + (this.hellIdx + 1) + ' / ' + this.hells.length, W - 12, 33);
+  _drawHUD(ctx, W, H) {
+    // Score bar at the very bottom
+    const barW  = W * 0.55;
+    const barX  = (W - barW) / 2;
+    const barY  = H - 28;
+    const barH  = 6;
     const nextAt = (Math.floor(score / HELL_SCORE_STEP) + 1) * HELL_SCORE_STEP;
-    ctx.fillText('NEXT   ' + Math.floor(nextAt - score), W - 12, 48);
+    const ratio  = (score % HELL_SCORE_STEP) / HELL_SCORE_STEP;
+
+    ctx.fillStyle = '#111'; ctx.fillRect(barX, barY, barW, barH);
+    ctx.fillStyle = '#2255cc'; ctx.fillRect(barX, barY, barW * ratio, barH);
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
+    ctx.strokeRect(barX, barY, barW, barH);
+
+    // Score text
+    ctx.fillStyle = '#555'; ctx.font = '11px "Courier New"';
+    ctx.textAlign = 'center';
+    ctx.fillText(
+      'SCORE  ' + Math.floor(score) +
+      '   |   HELL ' + (this.hellIdx + 1) +
+      '   |   NEXT  −' + Math.floor(nextAt - score),
+      W / 2, H - 34
+    );
     ctx.textAlign = 'left';
   }
 
