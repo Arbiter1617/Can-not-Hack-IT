@@ -317,26 +317,32 @@ class IndicatorSystem {
 // HEART DRAWING
 // ═══════════════════════════════════════════════════════════════════
 function drawHeart(ctx, x, y, size, color, upsideDown = false) {
-  // The raw heart path spans y: -size*0.55 (top) to +size (bottom tip).
-  // Visual centre = (size - size*0.55)/2 - size*0.55/2 ≈ size*0.225 below origin.
-  // We shift up by that amount so the visual centre sits exactly at (x,y),
-  // matching the collision and graze-ring centre.
-  const OY = size * 0.225; // vertical offset to centre the shape
+  // Heart centred at (x, y).
+  // Path verified: top of lobes ≈ -size*0.9, bottom tip = +size  → centre ≈ size*0.05 ≈ 0
+  const h = size, w = size * 0.9;
   ctx.save();
   ctx.translate(x, y);
   if (upsideDown) ctx.scale(1, -1);
-  ctx.shadowBlur  = 22; ctx.shadowColor = color;
-  ctx.fillStyle   = color;
+
+  ctx.shadowBlur = 22; ctx.shadowColor = color;
+  ctx.fillStyle  = color;
   ctx.beginPath();
-  ctx.moveTo(0,          size * 0.35  - OY);
-  ctx.bezierCurveTo( size * 0.5,  -size * 0.55 - OY,  size * 1.25,  size * 0.25 - OY, 0,  size - OY);
-  ctx.bezierCurveTo(-size * 1.25,  size * 0.25 - OY, -size * 0.5,  -size * 0.55 - OY, 0,  size * 0.35 - OY);
+  ctx.moveTo(0, h);                                          // bottom tip
+  ctx.bezierCurveTo(-w*0.1,  h*0.5, -w*1.3,  h*0.1, -w,  -h*0.2);  // left outer
+  ctx.bezierCurveTo(-w*0.7, -h*0.9,  0,      -h*0.7,  0,  -h*0.4);  // left lobe top → dip
+  ctx.bezierCurveTo( 0,     -h*0.7,  w*0.7,  -h*0.9,  w,  -h*0.2);  // right lobe top
+  ctx.bezierCurveTo( w*1.3,  h*0.1,  w*0.1,   h*0.5,  0,   h);      // right outer → tip
   ctx.closePath();
   ctx.fill();
   ctx.shadowBlur = 0;
-  // Hitbox ring — at (0,0) = the collision centre
-  ctx.beginPath(); ctx.arc(0, 0, HEART_R, 0, TWO_PI);
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.stroke();
+
+  // Lethal hitbox ring — white, at (0,0) = collision centre
+  ctx.beginPath();
+  ctx.arc(0, 0, HEART_R, 0, TWO_PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth   = 1.5;
+  ctx.stroke();
+
   ctx.restore();
 }
 
@@ -721,11 +727,12 @@ class GameDirector {
         this.currentHell.heartColor, this.currentHell.heartUpsideDown);
     }
 
-    // Graze ring — always visible, blue, pulses brighter in focus mode
+    // Graze ring (outer, blue) — always visible, brighter in focus mode
+    // Lethal hitbox ring (inner, white) is drawn inside drawHeart at HEART_R
     const focused = Keys['ShiftLeft'] || Keys['ShiftRight'];
     ctx.beginPath();
     ctx.arc(this.hx, this.hy, GRAZE_R, 0, TWO_PI);
-    ctx.strokeStyle = focused ? 'rgba(80,160,255,0.65)' : 'rgba(60,120,255,0.30)';
+    ctx.strokeStyle = focused ? 'rgba(60,140,255,0.70)' : 'rgba(60,120,255,0.28)';
     ctx.lineWidth   = focused ? 1.5 : 1;
     ctx.stroke();
 
