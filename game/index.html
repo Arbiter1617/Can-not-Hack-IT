@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infinite Heart</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+    canvas { display: block; cursor: none; }
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  INFINITE HEART — Script Load Order                     ║
+  ║                                                          ║
+  ║  CORE (load first — shared globals)                     ║
+  ║    constants.js  → HEART_R, GRAZE_R, score, rnd, clamp ║
+  ║    canvas.js     → canvas, ctx, resize()                ║
+  ║    input.js      → Keys, Mouse                          ║
+  ║    clock.js      → LoopClock                            ║
+  ║    pool.js       → BulletPool                           ║
+  ║    particles.js  → Particles                            ║
+  ║    indicators.js → IndicatorSystem                      ║
+  ║    heart.js      → drawHeart()                          ║
+  ║                                                          ║
+  ║  ARCHITECTURE                                            ║
+  ║    hell-base.js  → HellBase (abstract)                  ║
+  ║                                                          ║
+  ║  HELLS (one file per hell — add new ones here)          ║
+  ║    hells/dodge-hell.js   → DodgeHell  (Hell #1)        ║
+  ║    hells/shield-hell.js  → ShieldHell (Hell #2) [TODO] ║
+  ║    hells/string-hell.js  → StringHell (Hell #3) [TODO] ║
+  ║    ... etc                                               ║
+  ║                                                          ║
+  ║  ORCHESTRATION (load last)                               ║
+  ║    director.js   → GameDirector (register hells here)   ║
+  ║    main.js       → boot + game loop                     ║
+  ╚══════════════════════════════════════════════════════════╝
+-->
+
+<!-- ── Core ── -->
+<script src="js/core/constants.js"></script>
+<script src="js/core/canvas.js"></script>
+<script src="js/core/input.js"></script>
+<script src="js/core/clock.js"></script>
+<script src="js/core/pool.js"></script>
+<script src="js/core/particles.js"></script>
+<script src="js/core/indicators.js"></script>
+<script src="js/core/heart.js"></script>
+
+<!-- ── Architecture ── -->
+<script src="js/hell-base.js"></script>
+
+<!-- ── Hells (add each new hell here) ── -->
+<script src="js/hells/dodge-hell.js"></script>
+<!-- <script src="js/hells/shield-hell.js"></script> -->
+<!-- <script src="js/hells/string-hell.js"></script> -->
+<!-- <script src="js/hells/gravity-hell.js"></script> -->
+<!-- <script src="js/hells/laser-hell.js"></script> -->
+<!-- <script src="js/hells/projectile-hell.js"></script> -->
+<!-- <script src="js/hells/shooter-hell.js"></script> -->
+<!-- <script src="js/hells/kamikaze-hell.js"></script> -->
+<!-- <script src="js/hells/hole-in-wall-hell.js"></script> -->
+<!-- <script src="js/hells/typing-hell.js"></script> -->
+<!-- <script src="js/hells/music-hell.js"></script> -->
+
+<!-- ── Orchestration ── -->
+<script src="js/director.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
