@@ -79,13 +79,14 @@ class BulletPool {
 
       const dx = b.x - hx, dy = b.y - hy, dist = Math.hypot(dx, dy);
 
-      // Graze
-      if (!b.grazed && dist < GRAZE_R && dist >= HEART_R + b.r - 2) {
+      // Graze — bullet EDGE enters the graze ring (dist is centre-to-centre,
+      // so subtract bullet radius to get closest edge distance)
+      if (!b.grazed && dist - b.r < GRAZE_R && dist - b.r >= HEART_R) {
         b.grazed = true;
         if (cfg.grazeGain > 0) clock.add(cfg.grazeGain, hx, hy - 24);
       }
-      // Hit
-      if (!b.hit && dist < HEART_R + b.r - 3) {
+      // Hit — bullet EDGE overlaps the lethal hitbox
+      if (!b.hit && dist - b.r < HEART_R) {
         b.hit = true; b.active = false;
         clock.subtract(cfg.hitPenalty, hx, hy - 24);
         gotHit = true;

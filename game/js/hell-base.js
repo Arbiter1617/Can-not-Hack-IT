@@ -36,7 +36,7 @@ class HellBase {
    * grazeGain  — seconds added per graze (0 = no graze reward)
    * hitPenalty — seconds removed per hit
    */
-  get cfg() { return { grazeGain: 1, hitPenalty: 6 }; }
+  get cfg() { return { grazeGain: 1, hitPenalty: 4 }; }
 
   /** Called once when this hell becomes active */
   enter() {}

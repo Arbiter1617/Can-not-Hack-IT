@@ -207,7 +207,7 @@ class GameDirector {
     // Tiny sub-hint
     ctx.font      = '10px "Courier New"';
     ctx.fillStyle = '#333';
-    ctx.fillText('WASD — MOVE   |   SHIFT — FOCUS   |   ESC — PAUSE', W / 2, H / 2 + 28);
+    ctx.fillText('WASD — MOVE   |   SHIFT — FOCUS   |   GRAZE → +1s   |   HIT → −4s', W / 2, H / 2 + 28);
     ctx.textAlign = 'left';
   }
 
