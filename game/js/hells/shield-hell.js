@@ -19,7 +19,7 @@ class ShieldHell extends HellBase {
   // ── Hell identity ─────────────────────────────────────────────────
   get heartColor()   { return '#33ff77'; }
   get heartMovable() { return false; }   // WASD moves shield, not heart
-  get cfg()          { return { grazeGain: 0, hitPenalty: 4 }; }
+  get cfg()          { return { grazeGain: 0, hitPenalty: 1 }; }
 
   get boundary() {
     const W = canvas.width, H = canvas.height;
