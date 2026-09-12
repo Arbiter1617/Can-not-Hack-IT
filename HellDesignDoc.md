@@ -470,11 +470,12 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 12. Typing Test Hell 🟡 *(heart color + bullet state TBD)*
+## 12. Typing Test Hell 🟢 *(core design LOCKED)*
 *30-character WASD string — hidden correct counter, +3s rewards, -1s on mistake*
 
 ```
-Heart Color       : TBD
+Heart Color       : Inherits previous hell's color — heart CENTERS on screen
+                    No color change. No movement during typing phase.
 ─────────────────────────────────────────────────────────
 WARNING INDICATOR
   Trigger         : Random red flicker from TOP of screen
@@ -485,7 +486,7 @@ STRING RULES
   Length          : Exactly 30 characters
   Characters      : W, A, S, D only + single spaces
   Space rules     : No adjacent spaces allowed
-                    Multiple spaces allowed throughout the string
+                    Multiple spaces can appear throughout the string
   Time limit      : 5 seconds — then hell ends and next hell begins regardless
 ─────────────────────────────────────────────────────────
 CORRECT COUNTER (HIDDEN from player)
@@ -498,14 +499,15 @@ CORRECT COUNTER (HIDDEN from player)
 TIMER ECONOMY
   8 correct streak  : +3s (hidden milestone)
   Wrong character   : −1s + correct counter reset
-  Timer running     : TBD — paused like Shield Hell or ticking during typing?
+  Main clock        : ⏸ PAUSED — the 5-second window IS the phase timer
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
-  Bullets during typing : TBD — still flying or frozen?
-  The hidden counter creates natural risk/reward — players who panic-correct
-  after a mistake lose more time than players who stay calm and rebuild streak.
+  Bullets          : NOT flying — action completely freezes during typing phase
+  The hidden counter creates natural risk/reward — panicking after a mistake
+  and mashing costs more time than staying calm and rebuilding streak.
   "BE READY" flicker gives just enough warning to shift mental focus
-  from dodging to typing without being generous.
+  from dodging to typing without being generous about it.
+```
 ```
 
 ---
