@@ -14,6 +14,7 @@ class DodgeHell extends HellBase {
 
   // ── Hell identity ─────────────────────────────────────────────────
   get heartColor() { return '#ff3333'; }
+  get name()       { return 'DODGE HELL'; }
   get cfg()        { return { grazeGain: 1, hitPenalty: 4 }; }
 
   get boundary() {

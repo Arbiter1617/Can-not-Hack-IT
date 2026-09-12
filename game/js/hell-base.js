@@ -22,6 +22,9 @@ class HellBase {
   /** CSS colour string for the heart in this hell */
   get heartColor()      { return '#ff3333'; }
 
+  /** Display name shown on the death screen */
+  get name()            { return 'UNKNOWN HELL'; }
+
   /** Flip the heart sprite upside-down (Shooter Hell) */
   get heartUpsideDown() { return false; }
 
