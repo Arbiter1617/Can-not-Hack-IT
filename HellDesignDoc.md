@@ -373,25 +373,43 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 9. Kamikaze Hell 🔴
-*Auto-scrolling, planes drop from top, Dash mechanic (Spacebar/Shift)*
+## 9. Kamikaze Hell 🟡 *(dash key TBD — core design LOCKED)*
+*Auto-scrolling side-scroller — planes, gravity, dash*
 
 ```
-Heart Color       : ❓
-Boundary          : ❓
+Heart Color       : 🔵 Dark Blue (gravity is active in this mode)
+Boundary          : ENTIRE SCREEN
+                    • Floor at bottom — hard boundary, heart cannot go below
+                    • No ceiling boundary — top is open
+                    • Camera auto-scrolls RIGHT continuously
 ─────────────────────────────────────────────────────────
-ATTACKS
-  Patterns        : ❓
-  Projectile Types: Falling planes
-  Indicators      : ❓
+MOVEMENT SYSTEM (gravity-based, same physics as Gravity Hell)
+  A / D           : Left / Right movement
+  Jump            : W or Space (TBD — depends on dash key assignment)
+  Dash            : Single tap in current A/D walking direction only
+                    Jump direction does NOT count for dash direction
+                    Dash grants i-frames for its duration
+  Dash key        : TBD — Option A: Shift=dash, W/Space=jump
+                          Option B: Space=dash, W=jump only
+─────────────────────────────────────────────────────────
+PLANES (enemies)
+  Spawn locations : Top-right half of screen + right side of screen
+  Travel direction: Diagonal — SOUTHWEST (down + left)
+  Size variation  : TBD — discuss at end of all hells
+  Patterns        : TBD — discuss at end of all hells
+  Indicators      : TBD — discuss at end of all hells
 ─────────────────────────────────────────────────────────
 TIMER ECONOMY
-  Near Miss +time : ❓
-  Hit −time       : ❓
-  Special rules   : ❓
+  Near Miss +time : +1s (same as Dodge Hell) — grazing a plane wing counts ✅
+  Hit −time       : −6s (same as Dodge Hell)
+  Special rules   : • Invincibility frames active after each hit ✅
+                    • Global one-hit rule applies ✅
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
-  Dash = i-frame burst forward
+  Planes fall diagonally SW — player must predict crossing paths while
+  also managing the forced rightward camera scroll.
+  Dash direction locked to A/D walking axis — cannot dash vertically.
+  Dark blue heart confirms gravity physics carry over from Gravity Hell.
 ```
 
 ---
