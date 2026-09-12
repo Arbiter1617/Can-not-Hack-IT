@@ -1,11 +1,14 @@
 'use strict';
 // ─── Boot + Game Loop ────────────────────────────────────────────────
-// All classes are already in global scope from the <script> tags above.
-
 const director = new GameDirector();
 
-// Space / Enter starts or restarts the game
 window.addEventListener('keydown', e => {
+  // ESC — pause / unpause at any time during play
+  if (e.code === 'Escape') {
+    director.togglePause();
+    return;
+  }
+  // Space / Enter — start or restart (not while playing)
   if ((e.code === 'Space' || e.code === 'Enter') && director.state !== 'PLAYING') {
     director.start();
   }

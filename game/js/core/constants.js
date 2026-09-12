@@ -1,7 +1,7 @@
 'use strict';
 // ─── Constants ───────────────────────────────────────────────────────
-const HEART_R         = 8;     // lethal hitbox radius (px)
-const GRAZE_R         = 22;    // near-miss graze ring (px)
+const HEART_R         = 10;    // lethal hitbox radius (px)
+const GRAZE_R         = 27;    // near-miss graze ring (px)
 const BASE_SPEED      = 250;   // heart movement px/s
 const FOCUS_MULT      = 0.45;  // Shift slow multiplier
 const HELL_SCORE_STEP = 3000;  // score between hell transitions

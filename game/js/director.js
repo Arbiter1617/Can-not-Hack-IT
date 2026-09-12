@@ -3,6 +3,7 @@
 // GAME DIRECTOR
 // Owns: clock, pool, particles, indicators, hell list
 // Manages: heart position, iframes, hell transitions, HUD, game state
+// States: MENU | PLAYING | PAUSED | DEAD
 // ═══════════════════════════════════════════════════════════════════
 class GameDirector {
   constructor() {
@@ -11,9 +12,9 @@ class GameDirector {
     this.particles  = new Particles();
     this.indicators = new IndicatorSystem();
 
-    this.hx         = 0;    // heart x
-    this.hy         = 0;    // heart y
-    this.iframes    = 0;    // invincibility seconds remaining
+    this.hx         = 0;
+    this.hy         = 0;
+    this.iframes    = 0;
     this.IFRAME_DUR = 1.6;
 
     // ── Hell registry — add new hells here as they are built ────────
@@ -26,7 +27,7 @@ class GameDirector {
     this.hellIdx     = 0;
     this.currentHell = this.hells[0];
 
-    this.state      = 'MENU'; // MENU | PLAYING | DEAD
+    this.state      = 'MENU'; // MENU | PLAYING | PAUSED | DEAD
     this.flashAlpha = 0;
     this._lastHellN = 0;
   }
@@ -51,13 +52,19 @@ class GameDirector {
     this.state = 'PLAYING';
   }
 
+  // ── Pause toggle (ESC) ────────────────────────────────────────────
+  togglePause() {
+    if (this.state === 'PLAYING') this.state = 'PAUSED';
+    else if (this.state === 'PAUSED') this.state = 'PLAYING';
+  }
+
   // ── Hell Transition ───────────────────────────────────────────────
   _transition() {
     this.currentHell.exit();
     this.hellIdx     = (this.hellIdx + 1) % this.hells.length;
     this.currentHell = this.hells[this.hellIdx];
     this.currentHell.enter();
-    this.flashAlpha  = 1; // white flash
+    this.flashAlpha  = 1;
   }
 
   // ── Constrain heart inside boundary ──────────────────────────────
@@ -70,7 +77,7 @@ class GameDirector {
 
   // ── Update ────────────────────────────────────────────────────────
   update(dt) {
-    if (this.state !== 'PLAYING') return;
+    if (this.state !== 'PLAYING') return; // MENU / PAUSED / DEAD all skip
 
     // Passive score & hell gating
     score += SCORE_PER_SEC * dt;
@@ -80,7 +87,7 @@ class GameDirector {
       this._transition();
     }
 
-    // Clock (timer = health)
+    // Clock
     this.clock.update(dt);
     if (this.clock.dead) {
       this.state = 'DEAD';
@@ -88,10 +95,10 @@ class GameDirector {
       return;
     }
 
-    // Invincibility frames
+    // iFrames
     if (this.iframes > 0) this.iframes -= dt;
 
-    // Heart movement — WASD, Shift = focus (slower, precise)
+    // Heart movement — WASD, Shift = focus
     const focused = Keys['ShiftLeft'] || Keys['ShiftRight'];
     const spd     = BASE_SPEED * (focused ? FOCUS_MULT : 1);
     if (Keys['KeyA'] || Keys['ArrowLeft'])  this.hx -= spd * dt;
@@ -100,7 +107,7 @@ class GameDirector {
     if (Keys['KeyS'] || Keys['ArrowDown'])  this.hy += spd * dt;
     this._constrain();
 
-    // Hell-specific logic
+    // Hell logic
     this.currentHell.update(dt);
 
     // Bullet physics + collision
@@ -126,13 +133,11 @@ class GameDirector {
     ctx.fillStyle = '#050505';
     ctx.fillRect(0, 0, W, H);
 
-    if (this.state === 'MENU') { this._drawMenu(ctx, W, H); return; }
-    if (this.state === 'DEAD') { this._drawDead(ctx, W, H);  return; }
+    if (this.state === 'MENU')   { this._drawMenu(ctx, W, H);   return; }
+    if (this.state === 'DEAD')   { this._drawDead(ctx, W, H);   return; }
 
-    // Hell background / boundary
+    // ── Active game (PLAYING or PAUSED) ──────────────────────────
     this.currentHell.draw(ctx);
-
-    // Bullets → indicators → particles
     this.pool.draw(ctx);
     this.indicators.draw(ctx);
     this.particles.draw(ctx);
@@ -140,11 +145,11 @@ class GameDirector {
     // Heart (flicker during iframes)
     const show = this.iframes <= 0 || Math.floor(this.iframes * 9) % 2 === 0;
     if (show) {
-      drawHeart(ctx, this.hx, this.hy, HEART_R * 1.55,
+      drawHeart(ctx, this.hx, this.hy, HEART_R * 1.5,
         this.currentHell.heartColor, this.currentHell.heartUpsideDown);
     }
 
-    // Graze ring — always-on blue outer ring (lethal ring drawn inside drawHeart)
+    // Graze ring — always-on blue, brighter in focus
     const focused = Keys['ShiftLeft'] || Keys['ShiftRight'];
     ctx.beginPath();
     ctx.arc(this.hx, this.hy, GRAZE_R, 0, TWO_PI);
@@ -161,43 +166,71 @@ class GameDirector {
       ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha * 0.45})`;
       ctx.fillRect(0, 0, W, H);
     }
+
+    // Pause overlay on top of everything
+    if (this.state === 'PAUSED') this._drawPaused(ctx, W, H);
   }
 
   // ── HUD ───────────────────────────────────────────────────────────
   _drawHUD(ctx, W, H) {
     const sc   = Math.floor(score);
     const hell = this.hellIdx + 1;
-
     ctx.textAlign  = 'center';
     ctx.font       = 'bold 18px "Courier New"';
     ctx.fillStyle  = '#ffffff';
     ctx.shadowBlur = 8; ctx.shadowColor = '#4488ff';
     ctx.fillText(sc.toString().padStart(6, '0'), W / 2, H - 30);
     ctx.shadowBlur = 0;
-
     ctx.font      = '10px "Courier New"';
     ctx.fillStyle = '#555';
     ctx.fillText('SCORE', W / 2 - 52, H - 30);
-    ctx.fillText('HELL  ' + hell,  W / 2 + 22, H - 30);
+    ctx.fillText('HELL  ' + hell, W / 2 + 22, H - 30);
     ctx.textAlign = 'left';
   }
 
-  // ── Screen states ─────────────────────────────────────────────────
+  // ── Screen: minimal ready-up (no title — already on Start Page) ──
   _drawMenu(ctx, W, H) {
+    // Faint pulsing heart in background
+    const pulse = 0.55 + Math.abs(Math.sin(performance.now() / 700)) * 0.45;
+    ctx.globalAlpha = pulse * 0.18;
+    drawHeart(ctx, W / 2, H / 2, 90, '#ff3333');
+    ctx.globalAlpha = 1;
+
+    // Ready-up prompt
     ctx.textAlign  = 'center';
-    ctx.font       = 'bold 30px "Courier New"';
-    ctx.shadowBlur = 22; ctx.shadowColor = '#ff3333';
-    ctx.fillStyle  = '#fff';
-    ctx.fillText('\u2736  INFINITE HEART  \u2736', W / 2, H / 2 - 44);
+    ctx.font       = 'bold 15px "Courier New"';
+    ctx.fillStyle  = '#ffffff';
+    ctx.shadowBlur = 10; ctx.shadowColor = '#ff3333';
+    ctx.fillText('PRESS SPACE TO READY UP', W / 2, H / 2 + 6);
     ctx.shadowBlur = 0;
-    ctx.font = '13px "Courier New"'; ctx.fillStyle = '#aaa';
-    ctx.fillText('PRESS  SPACE  OR  ENTER  TO  START', W / 2, H / 2 + 6);
-    ctx.font = '10px "Courier New"'; ctx.fillStyle = '#444';
-    ctx.fillText('WASD \u2014 MOVE   |   SHIFT \u2014 FOCUS MODE   |   GRAZE \u2192 +1s   |   HIT \u2192 \u22126s', W / 2, H / 2 + 32);
-    ctx.fillText('HELL CHANGES EVERY  ' + HELL_SCORE_STEP + '  SCORE', W / 2, H / 2 + 50);
+
+    // Tiny sub-hint
+    ctx.font      = '10px "Courier New"';
+    ctx.fillStyle = '#333';
+    ctx.fillText('WASD — MOVE   |   SHIFT — FOCUS   |   ESC — PAUSE', W / 2, H / 2 + 28);
     ctx.textAlign = 'left';
   }
 
+  // ── Screen: pause overlay ─────────────────────────────────────────
+  _drawPaused(ctx, W, H) {
+    // Dark semi-transparent veil over the game
+    ctx.fillStyle = 'rgba(0,0,0,0.60)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.textAlign  = 'center';
+    ctx.font       = 'bold 22px "Courier New"';
+    ctx.fillStyle  = '#ffffff';
+    ctx.shadowBlur = 12; ctx.shadowColor = '#4488ff';
+    ctx.fillText('— PAUSED —', W / 2, H / 2 - 12);
+    ctx.shadowBlur = 0;
+
+    ctx.font      = '11px "Courier New"';
+    ctx.fillStyle = '#555';
+    ctx.fillText('ESC to resume', W / 2, H / 2 + 16);
+    ctx.textAlign = 'left';
+  }
+
+  // ── Screen: dead ─────────────────────────────────────────────────
   _drawDead(ctx, W, H) {
     this.particles.draw(ctx);
     ctx.fillStyle = 'rgba(0,0,0,0.72)'; ctx.fillRect(0, 0, W, H);
