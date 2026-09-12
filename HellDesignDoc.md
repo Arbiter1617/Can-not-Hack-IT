@@ -512,25 +512,37 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 13. Music Hell — Boss Mode 🔴
-*Piano keyboard bottom, falling note-blocks synced to Rush E / Isaac Newton Theme*
+## 13. Music Hell (Boss Mode) 🟡 *(projectile reference TBD — core design LOCKED)*
+*Full-screen boss fight — synced to music, most intense phase*
 
 ```
-Heart Color       : ❓
-Boundary          : ❓
+Heart Color       : ❤️  Classic Red
+Boundary          : ENTIRE SCREEN — every single pixel used, no box
 ─────────────────────────────────────────────────────────
-ATTACKS
-  Patterns        : Note blocks falling in sync with music
-  Projectile Types: Falling key blocks (dense, tempo-synced)
-  Indicators      : Keys light up slightly before note drops?
+MOVEMENT
+  WASD            : Full 2D free movement across entire screen
+  Space           : Dash — available in this phase ✅
+─────────────────────────────────────────────────────────
+MUSIC & PROJECTILES
+  Music track     : Audio from https://youtu.be/Qskm9MTz2V4
+  Projectiles     : Synced to the video above — patterns TBD pending video ID
+                    Reference: TBD (user to confirm video title/source)
+  Patterns        : TBD — discuss at end of all hells
+  Indicators      : TBD — discuss at end of all hells
 ─────────────────────────────────────────────────────────
 TIMER ECONOMY
-  Near Miss +time : ❓
-  Hit −time       : ❓
-  Special rules   : ❓
+  Near Miss +time : NONE — no graze/near miss mechanic in this phase
+  Hit −time       : −3s (more lenient — some hits are unavoidable by design)
+  Fruit Ninja     : Pocket watches spawn MORE FREQUENTLY during Music Hell
+                    All Fruit Ninja rules still apply (+8s to +15s per watch)
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
-  Boss mode — most intense phase
+  This is the FINAL phase / boss mode — most visually intense.
+  Leniency in hit penalty is intentional: the density of patterns
+  means unavoidable hits are a design reality, not a failure.
+  Frequent pocket watches act as a compensation mechanic —
+  skilled players can offset the unavoidable damage by catching watches.
+  No near-miss system keeps the focus purely on survival + watch collection.
 ```
 
 ---
