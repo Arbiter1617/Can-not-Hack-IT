@@ -36,7 +36,11 @@ class GameDirector {
   start() {
     score           = 0;
     this._lastHellN = 0;
-    this.clock      = new LoopClock(60);
+
+    // Practice mode: normal timer, hell stays locked — no transitions
+    const practiceIdx = PRACTICE_HELL ? (PRACTICE_HELL_IDX[PRACTICE_HELL] ?? 0) : 0;
+    this.clock = new LoopClock(60);
+
     this.pool.clear();
     this.particles.list.length  = 0;
     this.indicators.list.length = 0;
@@ -46,8 +50,8 @@ class GameDirector {
     this.hx = canvas.width  / 2;
     this.hy = canvas.height / 2;
 
-    this.hellIdx     = 0;
-    this.currentHell = this.hells[0];
+    this.hellIdx     = practiceIdx;
+    this.currentHell = this.hells[practiceIdx];
     this.currentHell.enter();
     this.state = 'PLAYING';
   }
@@ -79,12 +83,14 @@ class GameDirector {
   update(dt) {
     if (this.state !== 'PLAYING') return; // MENU / PAUSED / DEAD all skip
 
-    // Passive score & hell gating
+    // Passive score & hell gating (skipped in practice — hell is locked)
     score += SCORE_PER_SEC * dt;
-    const hellN = Math.floor(score / HELL_SCORE_STEP);
-    if (hellN > this._lastHellN) {
-      this._lastHellN = hellN;
-      this._transition();
+    if (!PRACTICE_HELL) {
+      const hellN = Math.floor(score / HELL_SCORE_STEP);
+      if (hellN > this._lastHellN) {
+        this._lastHellN = hellN;
+        this._transition();
+      }
     }
 
     // Clock
@@ -175,16 +181,24 @@ class GameDirector {
   _drawHUD(ctx, W, H) {
     const sc   = Math.floor(score);
     const hell = this.hellIdx + 1;
+
     ctx.textAlign  = 'center';
     ctx.font       = 'bold 18px "Courier New"';
     ctx.fillStyle  = '#ffffff';
     ctx.shadowBlur = 8; ctx.shadowColor = '#4488ff';
     ctx.fillText(sc.toString().padStart(6, '0'), W / 2, H - 30);
     ctx.shadowBlur = 0;
+
     ctx.font      = '10px "Courier New"';
     ctx.fillStyle = '#555';
-    ctx.fillText('SCORE', W / 2 - 52, H - 30);
-    ctx.fillText('HELL  ' + hell, W / 2 + 22, H - 30);
+    if (PRACTICE_HELL) {
+      // Practice: show mode label instead of hell number
+      ctx.fillStyle = '#c084fc'; // purple tint
+      ctx.fillText('PRACTICE  —  ' + PRACTICE_HELL.toUpperCase(), W / 2 - 10, H - 30);
+    } else {
+      ctx.fillText('SCORE', W / 2 - 52, H - 30);
+      ctx.fillText('HELL  ' + hell, W / 2 + 22, H - 30);
+    }
     ctx.textAlign = 'left';
   }
 
