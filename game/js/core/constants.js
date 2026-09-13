@@ -14,7 +14,8 @@ const _params       = new URLSearchParams(location.search);
 const PRACTICE_HELL = _params.get('practice') || null; // 'dodge' | null
 
 // Map practice param → hell index in director.hells[]
-const PRACTICE_HELL_IDX = { dodge: 0, shield: 1, string: 2 };
+// fruitninja maps to 0 (Dodge Hell) — it's an overlay, not a sequential hell
+const PRACTICE_HELL_IDX = { dodge: 0, shield: 1, string: 2, fruitninja: 0 };
 
 // score is declared here so every file can read / write it as a global
 let score = 0;

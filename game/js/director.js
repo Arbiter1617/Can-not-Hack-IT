@@ -28,7 +28,10 @@ class GameDirector {
     this.hellIdx     = 0;
     this.currentHell = this.hells[0];
 
-    this.state      = 'MENU'; // MENU | PLAYING | PAUSED | DEAD
+    // ── Parallel overlay systems ─────────────────────────────────────
+    this.fruitNinja = new FruitNinjaSystem(this);
+
+    this.state      = 'MENU';
     this.flashAlpha = 0;
     this._lastHellN = 0;
   }
@@ -40,6 +43,7 @@ class GameDirector {
 
     // Reset cross-visit hell state (e.g. visit counters)
     this.hells.forEach(h => h.reset());
+    this.fruitNinja.reset();
 
     // Practice mode: normal timer, hell stays locked — no transitions
     const practiceIdx = PRACTICE_HELL ? (PRACTICE_HELL_IDX[PRACTICE_HELL] ?? 0) : 0;
@@ -135,6 +139,7 @@ class GameDirector {
 
     this.particles.update(dt);
     this.indicators.update(dt);
+    this.fruitNinja.update(dt);  // parallel overlay — always runs during play
 
     if (this.flashAlpha > 0) this.flashAlpha = Math.max(0, this.flashAlpha - dt * 3);
   }
@@ -178,6 +183,9 @@ class GameDirector {
       ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha * 0.45})`;
       ctx.fillRect(0, 0, W, H);
     }
+
+    // Fruit Ninja overlay — trail + watch on top of all game elements
+    this.fruitNinja.draw(ctx);
 
     // Pause overlay on top of everything
     if (this.state === 'PAUSED') this._drawPaused(ctx, W, H);

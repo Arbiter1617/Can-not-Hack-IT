@@ -48,6 +48,7 @@
     0: 'dodge',
     1: 'shield',
     2: 'string',
+    3: 'fruitninja',
   };
 
   InfiniteHeartSubpage.initList(itemEls, (index) => {
