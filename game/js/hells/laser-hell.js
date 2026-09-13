@@ -16,7 +16,7 @@ class LaserHell extends HellBase {
   // â”€â”€ Hell identity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   get heartColor() { return '#ff3333'; } // Red heart
   get name()       { return 'LASER HELL'; }
-  get cfg()        { return { grazeGain: 1, hitPenalty: 6 }; }
+  get cfg()        { return { grazeGain: 1, hitPenalty: 4 }; }
   
   // Boundary: ENTIRE SCREEN â€” no box, full play area
   get boundary()   { return null; }
@@ -202,7 +202,7 @@ class ProjectileHell extends HellBase {
   
   get heartColor() { return '#ff3333'; }
   get name()       { return 'PROJECTILE HELL'; }
-  get cfg()        { return { grazeGain: 1, hitPenalty: 6 }; }
+  get cfg()        { return { grazeGain: 1, hitPenalty: 4 }; }
   get boundary()   { return null; }
   
   get _fireRate() { return 0.7 - Math.min((typeof score !== 'undefined' ? score : 0) / 30000, 1) * 0.4; }
