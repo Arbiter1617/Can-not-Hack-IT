@@ -156,6 +156,10 @@ class TypingHell extends HellBase {
     const hx = this.dir.hx, hy = this.dir.hy;
     const expected = this.str[this.cursor];
 
+    if (window.InfiniteHeartAudio && InfiniteHeartAudio.playTypeSound) {
+      InfiniteHeartAudio.playTypeSound();
+    }
+
     if (ch === expected) {
       this.charState[this.cursor] = 'correct'; // fades to dark
       this.cursor++;
