@@ -71,26 +71,27 @@ class LaserHell extends HellBase {
         // Collision logic only active during 'fire' phase
         if (this.dir.iframes <= 0) {
           const dist = this._distToSegment(hx, hy, l.x1, l.y1, l.x2, l.y2);
-          const lethalDist = (typeof HEART_R !== 'undefined' ? HEART_R : 6) + l.thickness / 2;
-          const grazeDist = (typeof GRAZE_R !== 'undefined' ? GRAZE_R : 16) + l.thickness / 2;
+          const lethalDist = HEART_R + l.thickness / 2;
+          const grazeDist  = GRAZE_R + l.thickness / 2;
 
-          // Graze â€” must thread the edge of a live, active beam
+          // Near-miss graze — once per laser beam (must thread active beam)
           if (!l.grazed && dist < grazeDist && dist >= lethalDist) {
             l.grazed = true;
-            if (this.cfg.grazeGain > 0 && this.clock) {
-              this.clock.add(this.cfg.grazeGain, hx, hy - 24);
+            if (this.cfg.grazeGain > 0) {
+              this.dir.clock.add(this.cfg.grazeGain, hx, hy - 24);
             }
+            // Near-miss visual: bright blue ring flash + spark burst
+            this.dir.particles.burst(hx, hy, '#4499ff', 7, 120);
+            this.dir.flashAlpha = Math.max(this.dir.flashAlpha, 0.18);
           }
-          // Hit â€” one laser = one hit maximum
+
+          // Hit — one laser = one hit maximum
           if (!l.hit && dist < lethalDist) {
             l.hit = true;
-            this.dir.iframes = this.dir.IFRAME_DUR || 1.5;
-            if (this.dir.particles) {
-              this.dir.particles.burst(hx, hy, this.heartColor, 16, 220);
-            }
-            if (this.clock) {
-              this.clock.subtract(this.cfg.hitPenalty, hx, hy - 24);
-            }
+            this.dir.iframes    = this.dir.IFRAME_DUR;
+            this.dir.flashAlpha = 0.55;
+            this.dir.particles.burst(hx, hy, this.heartColor, 16, 220);
+            this.dir.clock.subtract(this.cfg.hitPenalty, hx, hy - 24);
           }
         }
       }
@@ -278,19 +279,20 @@ class ProjectileHell extends HellBase {
       // Collision
       if (this.dir.iframes <= 0) {
         const dist = Math.hypot(p.x - hx, p.y - hy);
-        const lethalDist = (typeof HEART_R !== 'undefined' ? HEART_R : 6) + p.r;
-        const grazeDist = (typeof GRAZE_R !== 'undefined' ? GRAZE_R : 16) + p.r;
-        
+        const lethalDist = HEART_R + p.r;
+        const grazeDist  = GRAZE_R + p.r;
+
         if (!p.grazed && dist < grazeDist && dist >= lethalDist) {
           p.grazed = true;
-          if (this.cfg.grazeGain > 0 && this.clock) this.clock.add(this.cfg.grazeGain, hx, hy - 24);
+          if (this.cfg.grazeGain > 0) this.dir.clock.add(this.cfg.grazeGain, hx, hy - 24);
         }
-        
+
         if (!p.hit && dist < lethalDist) {
           p.hit = true;
-          this.dir.iframes = this.dir.IFRAME_DUR || 1.5;
-          if (this.dir.particles) this.dir.particles.burst(hx, hy, this.heartColor, 16, 220);
-          if (this.clock) this.clock.subtract(this.cfg.hitPenalty, hx, hy - 24);
+          this.dir.iframes    = this.dir.IFRAME_DUR;
+          this.dir.flashAlpha = 0.55;
+          this.dir.particles.burst(hx, hy, this.heartColor, 16, 220);
+          this.dir.clock.subtract(this.cfg.hitPenalty, hx, hy - 24);
         }
       }
     }
@@ -404,4 +406,40 @@ class ProjectileHell extends HellBase {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// COMBINED — LASER + PROJECTILE HELL (runs both simultaneously)
+// LaserHell and ProjectileHell are designed to run together:
+// X-pattern laser beams + kunai/bomb/missile projectiles at once.
+// ═══════════════════════════════════════════════════════════════════
+class LaserProjectileHell extends HellBase {
+  constructor(dir) {
+    super(dir);
+    this._laser = new LaserHell(dir);
+    this._proj  = new ProjectileHell(dir);
+  }
 
+  get heartColor() { return '#ff3333'; }
+  get name()       { return 'LASER HELL'; }
+  get cfg()        { return { grazeGain: 1, hitPenalty: 6 }; }
+  get boundary()   { return null; }
+
+  enter() {
+    this._laser.enter();
+    this._proj.enter();
+  }
+
+  exit() {
+    this._laser.exit();
+    this._proj.exit();
+  }
+
+  update(dt) {
+    this._laser.update(dt);
+    this._proj.update(dt);
+  }
+
+  draw(ctx) {
+    this._laser.draw(ctx);
+    this._proj.draw(ctx);
+  }
+}
