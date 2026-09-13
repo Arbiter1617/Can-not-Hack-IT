@@ -23,7 +23,7 @@
 
   function saveVolumes(v) {
     localStorage.setItem('ih_volumes', JSON.stringify(v));
-    if (window.InfiniteHeartAudio && InfiniteHeartAudio.refreshVolumes) {
+    if (typeof InfiniteHeartAudio !== 'undefined' && InfiniteHeartAudio.refreshVolumes) {
       InfiniteHeartAudio.refreshVolumes();
     }
   }
@@ -132,7 +132,7 @@
     opts = opts || {};
     if (index === current) return;
     current = index;
-    if (!opts.silent && window.InfiniteHeartAudio) {
+    if (!opts.silent && typeof InfiniteHeartAudio !== 'undefined') {
       InfiniteHeartAudio.playSelectSound();
     }
     renderAll();
@@ -152,7 +152,7 @@
     volumes[item.key] = !volumes[item.key];
     saveVolumes(volumes);
     renderRow(item.key);
-    if (window.InfiniteHeartAudio) InfiniteHeartAudio.playSelectSound();
+    if (typeof InfiniteHeartAudio !== 'undefined') InfiniteHeartAudio.playSelectSound();
   }
 
   document.addEventListener('keydown', (e) => {
