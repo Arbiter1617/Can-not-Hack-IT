@@ -24,8 +24,7 @@ class GameDirector {
       new StringHell(this),
       new TypingHell(this),
       new LaserProjectileHell(this),    // Laser beams + projectiles simultaneously
-      // new ProjectileHell(this),  // ← uncomment when projectile-hell.js is ready
-      // new GravityHell(this),
+      new GravityHell(this),             // Platformer physics + gravity flip
       // ...
     ];
     this.hellIdx     = 0;

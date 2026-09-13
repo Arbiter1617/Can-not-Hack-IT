@@ -48,6 +48,7 @@
     0: 'dodge',
     1: 'shield',
     2: 'string',
+    3: 'gravity',
     4: 'laser',
     5: 'projectile',
     6: 'fruitninja',
