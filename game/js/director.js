@@ -23,6 +23,8 @@ class GameDirector {
       new ShieldHell(this),
       new StringHell(this),
       new TypingHell(this),
+      new LaserHell(this),
+      new ProjectileHell(this),
       // new GravityHell(this),
       // ...
     ];

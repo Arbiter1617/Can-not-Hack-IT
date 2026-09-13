@@ -1,7 +1,7 @@
 # ♥ Infinite Heart — Hell Mode Design Tracker
 
 > This document is filled in one hell at a time during design sessions.
-> Status: 🔴 Not discussed | 🟡 In progress | 🟢 Locked in
+> Status: 🔴 Not Designed | 🟡 Designed (Code Pending) | 🟢 Fully Implemented | ❌ Dropped
 
 ---
 
@@ -9,24 +9,24 @@
 
 | # | Hell | Heart Color | Status |
 |---|------|-------------|--------|
-| 1 | **Dodge Hell** | 🔴 Red | 🔴 |
-| 2 | **Shield Hell** | ❓ TBD | 🔴 |
-| 3 | **String Hell** | ❓ TBD | 🔴 |
-| 4 | **Gravity Hell** | 🔵 Dark Blue | 🔴 |
-| 5 | **Laser Hell** | ❓ TBD | 🔴 |
-| 6 | **Projectile Hell** | ❓ TBD | 🔴 |
-| 7 | **Fruit Ninja Hell** | ❓ TBD | 🔴 |
-| 8 | **Shooter Hell** | 🟡 Yellow | 🔴 |
+| 1 | **Dodge Hell** | 🔴 Red | 🟢 Fully Implemented (`dodge-hell.js`) |
+| 2 | **Shield Hell** | 💚 Green | 🟢 Fully Implemented (`shield-hell.js`) |
+| 3 | **String Hell** | 💜 Purple | 🟢 Fully Implemented (`string-hell.js`) |
+| 4 | **Gravity Hell** | 🔵 Dark Blue | 🟡 Designed (Code Pending) |
+| 5 | **Laser Hell** | 🔴 Red | 🟢 Fully Implemented (`laser-hell.js`) |
+| 6 | **Projectile Hell** | 🔴 Red | 🟢 Fully Implemented (`laser-hell.js`) |
+| 7 | **Fruit Ninja Hell** | 🔄 Inherits | 🟢 Fully Implemented (`fruit-ninja.js`) |
+| 8 | **Shooter Hell** | 💛 Yellow | 🟡 Designed (Code Pending) |
 
 ## Breakout Modes
 
 | # | Hell | Heart Color | Status |
 |---|------|-------------|--------|
-| 9  | **Kamikaze Hell** | ❓ TBD | 🔴 |
-| 10 | **Dark Maze Hell** | ❓ TBD | 🔴 |
-| 11 | **Hole in the Wall Hell** | ❓ TBD | 🔴 |
-| 12 | **Typing Test Hell** | ❓ TBD | 🔴 |
-| 13 | **Music Hell (Boss)** | ❓ TBD | 🔴 |
+| 9  | **Kamikaze Hell** | 🔵 Dark Blue | 🟡 Designed (Code Pending) |
+| 10 | **Dark Maze Hell** | ❌ N/A | ❌ Dropped |
+| 11 | **Hole in the Wall Hell** | 🔴 Red | 🟡 Designed (Code Pending) |
+| 12 | **Typing Test Hell** | 🔄 Inherits | 🟢 Fully Implemented (`typing-hell.js`) |
+| 13 | **Music Hell (Boss)** | 🔴 Red | 🟡 Designed (Code Pending) |
 
 ---
 
@@ -53,7 +53,7 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 1. Dodge Hell 🟡 *(attack patterns TBD)*
+## 1. Dodge Hell 🟢 *(Fully Implemented)*
 *Reference: Undertale red heart — pure 8-way movement, no restrictions*
 
 ```
@@ -215,7 +215,7 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 5. Laser Hell 🟢 *(patterns TBD — core design LOCKED)*
+## 5. Laser Hell 🟢 *(Fully Implemented)*
 *Reference: No Humanity — telegraphed beams, spatial awareness over reaction*
 
 ```
@@ -256,7 +256,7 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 6. Projectile Hell 🟢 *(patterns TBD — core design LOCKED)*
+## 6. Projectile Hell 🟢 *(Fully Implemented)*
 *Reference: Touhou/Danmaku — dense math-driven patterns. Treat as a sub-mode of Dodge Hell.*
 
 ```
@@ -412,25 +412,25 @@ NOTES / SPECIAL MECHANICS
 
 ---
 
-## 10. Dark Maze Hell 🔴
-*Global darkness, small light radius around heart, navigate to exit*
+## 10. Dark Maze Hell ❌ *(Dropped)*
+*Idea dropped, no longer needed.*
 
 ```
-Heart Color       : ❓
-Boundary          : ❓ (maze walls = boundary)
+Heart Color       : ❌ N/A
+Boundary          : ❌ N/A
 ─────────────────────────────────────────────────────────
 ATTACKS
-  Patterns        : Static + moving wall geometry
-  Projectile Types: Wall collision
-  Indicators      : ❓
+  Patterns        : ❌ N/A
+  Projectile Types: ❌ N/A
+  Indicators      : ❌ N/A
 ─────────────────────────────────────────────────────────
 TIMER ECONOMY
-  Near Miss +time : ❓
-  Hit −time       : ❓
-  Special rules   : Time limit to find exit?
+  Near Miss +time : ❌ N/A
+  Hit −time       : ❌ N/A
+  Special rules   : ❌ N/A
 ─────────────────────────────────────────────────────────
 NOTES / SPECIAL MECHANICS
-  Reference: Jevil/Jackenstein from Deltarune
+  Idea scrapped.
 ```
 
 ---

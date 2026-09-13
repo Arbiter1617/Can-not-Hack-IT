@@ -108,12 +108,32 @@ html, body{
 .menu-list{
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 1rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.1rem;
   z-index: 2;
+  max-height: 60vh;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Custom scrollbar for menu list */
+.menu-list::-webkit-scrollbar {
+  width: 6px;
+}
+.menu-list::-webkit-scrollbar-track {
+  background: rgba(41, 226, 255, 0.05);
+  border-radius: 4px;
+}
+.menu-list::-webkit-scrollbar-thumb {
+  background: rgba(41, 226, 255, 0.3);
+  border-radius: 4px;
+}
+.menu-list::-webkit-scrollbar-thumb:hover {
+  background: var(--neon);
 }
 
 .menu-item{
