@@ -16,11 +16,11 @@ class TypingHell extends HellBase {
     super(dir);
 
     // ── Tunables (per HellDesignDoc.md) ────────────────────────────
-    this.STRING_LEN     = 30;    // exactly 30 characters
+    this.STRING_LEN     = 35;    // 35 characters — more to type in same window
     this.TYPING_TIME    = 5.0;   // 5-second hard window
-    this.STREAK_TARGET  = 8;     // every 8 consecutive correct...
+    this.STREAK_TARGET  = 10;    // every 10 consecutive correct...
     this.STREAK_REWARD  = 3;     // ...gives +3s
-    this.MISTAKE_PENALTY = 1;    // wrong key costs −1s
+    this.MISTAKE_PENALTY = 2;    // wrong key costs −2s (was −1s)
     this.WARN_MIN       = 0.4;   // "BE READY" flicker feels sudden,
     this.WARN_MAX       = 0.9;   // not a slow buildup — short random window
     this.VERT_OFFSET    = 90;    // px separation: string sits above centre, heart below

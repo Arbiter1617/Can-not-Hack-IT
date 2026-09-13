@@ -41,12 +41,12 @@ class LaserHell extends HellBase {
     if (this.fireTimer >= this.nextFireTime) {
       this.fireTimer = 0;
       // Rate at which they appear can be high, low, anything at random
-      this.nextFireTime = 0.5 + Math.random() * 2.0; 
-      // Speed up slightly as score gets higher, but remains highly randomized
+      this.nextFireTime = 0.3 + Math.random() * 1.4;
+      // Speed up faster with score
       if (typeof score !== 'undefined') {
-        this.nextFireTime -= Math.min(score / 30000, 1) * 0.4;
+        this.nextFireTime -= Math.min(score / 20000, 1) * 0.5;
       }
-      this.nextFireTime = Math.max(0.3, this.nextFireTime);
+      this.nextFireTime = Math.max(0.2, this.nextFireTime);
       this._spawnX();
     }
 
@@ -157,8 +157,8 @@ class LaserHell extends HellBase {
     const l2x2 = W + 20;
     const l2y2 = Math.random() * H;
 
-    const warnDuration = 1.0 + Math.random() * 0.8; // Both lasers warn and fire at the exact same time
-    const fireDuration = 0.5; // Lethal beam is active for 0.5s
+    const warnDuration = 0.7 + Math.random() * 0.6; // shorter warning = less time to dodge
+    const fireDuration = 0.65; // beam active longer (was 0.5s)
     const thickness = 18;
 
     this.lasers.push({
@@ -205,7 +205,7 @@ class ProjectileHell extends HellBase {
   get cfg()        { return { grazeGain: 1, hitPenalty: 4 }; }
   get boundary()   { return null; }
   
-  get _fireRate() { return 0.7 - Math.min((typeof score !== 'undefined' ? score : 0) / 30000, 1) * 0.4; }
+  get _fireRate() { return 0.55 - Math.min((typeof score !== 'undefined' ? score : 0) / 22000, 1) * 0.35; }
 
   enter() {
     this.projectiles = [];

@@ -40,7 +40,7 @@ class StringHell extends HellBase {
     this.climbPlayerRow   = 3;
     this.CLIMB_COUNT      = 8;
     this.CLIMB_SPACING    = 38;
-    this.CLIMB_SPEED      = 75;
+    this.CLIMB_SPEED      = 95;
     this.MONSTER_R        = 30;
     this.climbSpiderTimer = 0;
 
@@ -89,7 +89,7 @@ class StringHell extends HellBase {
   }
 
   get _monsterY()    { return this.boundary.y + this.boundary.h - this.MONSTER_R - 5; }
-  get _attackRate()  { return 1.8 - clamp(score / 12000, 0, 1.05); }
+  get _attackRate()  { return 1.4 - clamp(score / 10000, 0, 0.90); }
 
   // ── reset() — called by director on game restart ──────────────────
   reset() {
@@ -295,7 +295,7 @@ class StringHell extends HellBase {
     // Double spiders: spawn two per tick, rate 0.50s → 0.28s over time
     this.climbSpiderTimer -= dt;
     if (this.climbSpiderTimer <= 0) {
-      this.climbSpiderTimer = 0.50 - clamp(this.timeInHell / 30, 0, 0.22);
+      this.climbSpiderTimer = 0.38 - clamp(this.timeInHell / 25, 0, 0.20);
       this._spawnClimbSpider();
       this._spawnClimbSpider(); // second spider same tick
     }
@@ -316,7 +316,7 @@ class StringHell extends HellBase {
     const strings  = this._strings, b = this.boundary;
     const lane     = Math.floor(Math.random() * strings.length);
     const fromLeft = Math.random() > 0.5;
-    const spd      = 190 + clamp(score / 280, 0, 95);
+    const spd      = 220 + clamp(score / 240, 0, 115);
     const bullet   = this.pool.spawn({
       x: fromLeft ? b.x : b.x + b.w, y: strings[lane],
       vx: fromLeft ? spd : -spd, vy: 0, r: 11, color: '#aa44ff', life: 10,
@@ -326,7 +326,7 @@ class StringHell extends HellBase {
 
   _bounce() {
     const b = this.boundary, fromLeft = Math.random() > 0.5;
-    const spd = 175 + clamp(score / 280, 0, 85);
+    const spd = 200 + clamp(score / 240, 0, 100);
     const sy  = rnd(b.y + 12, b.y + b.h - 12);
     const vy  = (Math.random() > 0.5 ? 1 : -1) * spd * 0.48;
     const bullet = this.pool.spawn({
@@ -340,7 +340,7 @@ class StringHell extends HellBase {
     const strings = this._strings, b = this.boundary;
     const lane    = Math.floor(Math.random() * strings.length);
     const fromLeft = Math.random() > 0.5;
-    const spd     = 210 + clamp(score / 280, 0, 90);
+    const spd     = 240 + clamp(score / 240, 0, 115);
     const bullet  = this.pool.spawn({
       x: fromLeft ? b.x : b.x + b.w, y: strings[lane],
       vx: fromLeft ? spd : -spd, vy: 0, r: 10, color: '#ffaaff', life: 16,

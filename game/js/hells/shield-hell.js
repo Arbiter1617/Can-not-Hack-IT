@@ -30,11 +30,11 @@ class ShieldHell extends HellBase {
     return { x: (W - sz) / 2, y: (H - sz) / 2, w: sz, h: sz };
   }
 
-  // Arrows spawn interval — fast baseline, gets tighter with score
-  get _spawnRate() { return 0.80 - clamp(score / 10000, 0, 1) * 0.45; }
+  // Arrows spawn interval — tighter baseline, faster score scaling
+  get _spawnRate() { return 0.62 - clamp(score / 8000, 0, 1) * 0.38; }
 
-  // Arrow speed: 425 base → 600 max
-  get _arrowSpd()  { return 425 + clamp(score / 240, 0, 175); }
+  // Arrow speed: 490 base → 690 max (was 425 → 600)
+  get _arrowSpd()  { return 490 + clamp(score / 200, 0, 200); }
 
   // ── Lifecycle ─────────────────────────────────────────────────────
   enter() {
@@ -138,9 +138,9 @@ class ShieldHell extends HellBase {
         const bnd     = this.boundary;
         const hx      = this.dir.hx, hy = this.dir.hy;
 
-        // Spawn 50% of the way from opposite boundary toward center
-        // (much closer = much less reaction time)
-        const frac = 0.50;
+        // Spawn 65% of the way from opposite boundary toward center
+        // (closer = even less reaction time — harder)
+        const frac = 0.65;
         switch (newSide) {
           case 'W':
             bl.x = hx;
