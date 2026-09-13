@@ -8,7 +8,7 @@
 (function () {
   const HELLS = [
     'Dodge', 'Shield', 'String', 'Gravity', 'Laser', 'Projectile',
-    'Fruit Ninja', 'Shooter', 'Kamikaze', 'Dark Maze', 'Hole in the Wall',
+    'Fruit Ninja', 'Shooter', 'Kamikaze', 'Hole in the Wall',
     'Typing Test', 'Music'
   ];
 
@@ -48,8 +48,10 @@
     0: 'dodge',
     1: 'shield',
     2: 'string',
-    3: 'fruitninja',
-    4: 'typing',
+    4: 'laser',
+    5: 'projectile',
+    6: 'fruitninja',
+    10: 'typing',
   };
 
   InfiniteHeartSubpage.initList(itemEls, (index) => {
