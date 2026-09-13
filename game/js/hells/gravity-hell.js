@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 // ═══════════════════════════════════════════════════════════════════
 // HELL 4 — GRAVITY HELL
 // Dark blue heart · Platformer physics · Rectangle boundary
@@ -16,7 +16,7 @@ class GravityHell extends HellBase {
     this.WALK_SPEED    = 270;
     this.MAX_FALL      = 680;
     this.SPIKE_W = 26;
-    this.SPIKE_H = 36;
+    this.SPIKE_H = 95;
     this.vy            = 0;
     this.isGrounded    = false;
     this.jumped        = false;
@@ -89,7 +89,7 @@ class GravityHell extends HellBase {
     if (Keys['KeyD'] || Keys['ArrowRight']) this.dir.hx += wspd * dt;
     this.dir.hx = clamp(this.dir.hx, b.x + HEART_R, b.x + b.w - HEART_R);
 
-    const jumpKey  = !!(Keys['KeyW'] || Keys['Space']);
+    const jumpKey  = !!(Keys['KeyW'] || Keys['KeyS']);
     const jumpDown = jumpKey && !this._prevJump;
     this._prevJump = jumpKey;
 
