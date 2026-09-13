@@ -24,7 +24,7 @@ class GameDirector {
       new StringHell(this),
       new TypingHell(this),
       new LaserHell(this),
-      new ProjectileHell(this),
+      // new ProjectileHell(this),  // ← uncomment when projectile-hell.js is ready
       // new GravityHell(this),
       // ...
     ];
