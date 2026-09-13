@@ -38,6 +38,9 @@ class GameDirector {
     score           = 0;
     this._lastHellN = 0;
 
+    // Reset cross-visit hell state (e.g. visit counters)
+    this.hells.forEach(h => h.reset());
+
     // Practice mode: normal timer, hell stays locked — no transitions
     const practiceIdx = PRACTICE_HELL ? (PRACTICE_HELL_IDX[PRACTICE_HELL] ?? 0) : 0;
     this.clock = new LoopClock(60);
