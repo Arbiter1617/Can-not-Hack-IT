@@ -52,10 +52,15 @@ class FruitNinjaSystem {
     const fromLeft = Math.random() > 0.5;
     const bonus    = Math.floor(8 + Math.random() * 8);
     const baseY    = H * (0.18 + Math.random() * 0.60);
+    const spd      = 210 + Math.random() * 110;     // 210–320 px/s (was 130–190)
     this.watch = {
       x: fromLeft ? -this.WATCH_R - 10 : W + this.WATCH_R + 10,
       y: baseY, baseY,
-      vx: fromLeft ? 130 + Math.random() * 60 : -(130 + Math.random() * 60),
+      vx: fromLeft ? spd : -spd,
+      vy: (Math.random() - 0.5) * 140,              // random vertical drift
+      bobFreq:  3.8 + Math.random() * 3.0,          // random bob frequency
+      bobAmp:   45  + Math.random() * 45,            // random bob amplitude
+      jerkTimer: 0.4 + Math.random() * 0.7,         // time until next random kick
       time: 0, bonus,
       sliced: false, sliceTimer: 0,
       wingPhase: Math.random() * Math.PI * 2,
@@ -70,8 +75,29 @@ class FruitNinjaSystem {
       if (w.sliceTimer <= 0) this._resetWatch();
       return;
     }
+
+    // Horizontal movement
     w.x += w.vx * dt;
-    w.y  = w.baseY + Math.sin(w.time * 2.4 + w.wingPhase) * 38;
+
+    // Vertical: sinusoidal bob on top of drifting vy
+    w.y += w.vy * dt;
+    w.y += Math.sin(w.time * w.bobFreq + w.wingPhase) * w.bobAmp * dt;
+
+    // Bounce off screen top/bottom
+    const H      = canvas.height;
+    const margin = 55;
+    if (w.y < margin)      { w.y = margin;      w.vy =  Math.abs(w.vy) + 20; }
+    if (w.y > H - margin)  { w.y = H - margin;  w.vy = -(Math.abs(w.vy) + 20); }
+
+    // Random jerk — sudden vertical velocity kick
+    w.jerkTimer -= dt;
+    if (w.jerkTimer <= 0) {
+      w.vy += (Math.random() - 0.5) * 220;
+      w.vy  = clamp(w.vy, -220, 220);
+      w.jerkTimer = 0.35 + Math.random() * 0.65;
+    }
+
+    // Exit when off-screen horizontally
     const W = canvas.width;
     if ((w.vx > 0 && w.x > W + this.WATCH_R + 30) ||
         (w.vx < 0 && w.x < -this.WATCH_R - 30)) {

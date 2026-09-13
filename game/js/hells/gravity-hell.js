@@ -89,7 +89,7 @@ class GravityHell extends HellBase {
     if (Keys['KeyD'] || Keys['ArrowRight']) this.dir.hx += wspd * dt;
     this.dir.hx = clamp(this.dir.hx, b.x + HEART_R, b.x + b.w - HEART_R);
 
-    const jumpKey  = !!(Keys['KeyW'] || Keys['KeyS']);
+    const jumpKey  = !!(Keys['KeyW'] || Keys['KeyS'] || Keys['ArrowUp'] || Keys['ArrowDown']);
     const jumpDown = jumpKey && !this._prevJump;
     this._prevJump = jumpKey;
 
@@ -132,10 +132,10 @@ class GravityHell extends HellBase {
     }
 
     this.spikeTimer -= dt;
-    if (this.spikeTimer <= 0) { this.spikeTimer = rnd(1.6, 2.8); this._spawnSpikes(b); }
+    if (this.spikeTimer <= 0) { this.spikeTimer = rnd(1.1, 2.0); this._spawnSpikes(b); }
 
     this.arrowTimer -= dt;
-    if (this.arrowTimer <= 0) { this.arrowTimer = rnd(1.3, 2.4); this._spawnArrow(b); }
+    if (this.arrowTimer <= 0) { this.arrowTimer = rnd(0.9, 1.8); this._spawnArrow(b); }
 
     const hx = this.dir.hx, hy = this.dir.hy;
     for (let i = this.spikes.length - 1; i >= 0; i--) {
@@ -143,6 +143,15 @@ class GravityHell extends HellBase {
       s.age += dt;
       if      (s.state === 'warn'   && s.age >= s.warnDur  ) { s.state = 'active'; s.age = 0; }
       else if (s.state === 'active' && s.age >= s.activeDur) { this.spikes.splice(i, 1); continue; }
+
+      // Slide horizontally + bounce off boundary walls
+      if (s.vx !== 0) {
+        s.x += s.vx * dt;
+        s.tipY = s.tipY; // tipY is fixed relative to wall; x moves
+        if (s.x - this.SPIKE_W / 2 <= b.x)             { s.x = b.x + this.SPIKE_W / 2;       s.vx =  Math.abs(s.vx); }
+        if (s.x + this.SPIKE_W / 2 >= b.x + b.w)       { s.x = b.x + b.w - this.SPIKE_W / 2; s.vx = -Math.abs(s.vx); }
+      }
+
       if (s.state !== 'active' || this.dir.iframes > 0) continue;
       const distTip = Math.hypot(hx - s.x, hy - s.tipY);
       const inBody  = Math.abs(hx - s.x) < this.SPIKE_W / 2 &&
@@ -195,17 +204,34 @@ class GravityHell extends HellBase {
     for (const s of this.spikes) {
       const progress = s.state === 'warn' ? s.age / s.warnDur : 1;
       const alpha    = s.state === 'warn' ? 0.20 + progress * 0.55 : 1;
+      const moving   = s.vx !== 0;
+      const fillCol  = moving
+        ? (s.state === 'warn' ? `rgba(255,160,30,${alpha})` : '#ff9922')
+        : (s.state === 'warn' ? `rgba(60,130,255,${alpha})` : '#3366ff');
+
       ctx.beginPath();
       ctx.moveTo(s.x - this.SPIKE_W / 2, s.baseY);
       ctx.lineTo(s.x + this.SPIKE_W / 2, s.baseY);
       ctx.lineTo(s.x, s.tipY);
       ctx.closePath();
       ctx.shadowBlur  = s.state === 'active' ? 10 : 0;
-      ctx.shadowColor = '#2255ff';
-      ctx.fillStyle   = s.state === 'warn' ? `rgba(60,130,255,${alpha})` : '#3366ff';
+      ctx.shadowColor = moving ? '#ff8800' : '#2255ff';
+      ctx.fillStyle   = fillCol;
       ctx.fill();
       if (s.state === 'warn') {
-        ctx.strokeStyle = `rgba(120,180,255,${alpha})`; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.strokeStyle = moving ? `rgba(255,200,80,${alpha})` : `rgba(120,180,255,${alpha})`;
+        ctx.lineWidth = 1.5; ctx.stroke();
+      }
+      // Moving spike: draw a small chevron showing slide direction
+      if (moving && s.state === 'active') {
+        const cx = s.x + Math.sign(s.vx) * (this.SPIKE_W / 2 + 8);
+        const cy = s.tipY + (s.baseY - s.tipY) * 0.55;
+        const d  = Math.sign(s.vx) * 5;
+        ctx.strokeStyle = 'rgba(255,220,100,0.85)';
+        ctx.lineWidth   = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - d, cy - 4); ctx.lineTo(cx + d, cy); ctx.lineTo(cx - d, cy + 4);
+        ctx.stroke();
       }
       ctx.shadowBlur = 0;
     }
@@ -237,8 +263,19 @@ class GravityHell extends HellBase {
         attempts++;
       } while (placed.some(px => Math.abs(px - sx) < this.SPIKE_W * 2.5) && attempts < 12);
       placed.push(sx);
-      this.spikes.push({ x: sx, baseY, tipY, state: 'warn', age: 0,
-        warnDur: rnd(0.6, 1.0), activeDur: rnd(1.2, 1.8), grazed: false, hit: false });
+
+      // 35% chance: spike slides horizontally (left or right)
+      const moving = Math.random() < 0.35;
+      const vx     = moving ? (Math.random() < 0.5 ? 1 : -1) * rnd(70, 140) : 0;
+
+      this.spikes.push({
+        x: sx, baseY, tipY,
+        vx,                              // 0 = static, ±n = sliding
+        state: 'warn', age: 0,
+        warnDur:   rnd(0.5, 0.85),
+        activeDur: rnd(1.4, 2.2),
+        grazed: false, hit: false
+      });
     }
   }
 

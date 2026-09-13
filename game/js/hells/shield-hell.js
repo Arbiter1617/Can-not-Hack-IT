@@ -174,7 +174,16 @@ class ShieldHell extends HellBase {
 
     for (const b of this.pool.list) {
       if (!b.active || !b.fromSide) continue;
-      if (b.fromSide !== this.shieldDir) continue;
+
+      // Derive required shield from ACTUAL velocity direction (robust after flip)
+      let req;
+      if      (b.vy >  1) req = 'W'; // moving down  → arrow comes from top → W shield
+      else if (b.vy < -1) req = 'S'; // moving up    → arrow comes from bottom → S shield
+      else if (b.vx >  1) req = 'A'; // moving right → arrow comes from left  → A shield
+      else if (b.vx < -1) req = 'D'; // moving left  → arrow comes from right → D shield
+      else continue;                  // stationary — skip
+
+      if (req !== this.shieldDir) continue;
       if (Math.hypot(b.x - hx, b.y - hy) < SR) {
         b.active = false;
         this.particles.burst(b.x, b.y, '#33ff77', 7, 100);
