@@ -1,22 +1,37 @@
 /* ==========================================================================
    Infinite Heart — main menu (the stopwatch)
-   The clock hand is the cursor. W/S step between snap positions.
-   Space / Enter / left-click confirms the currently active node.
-   Snap order: 12 -> PLAY -> EXIT -> Credits -> Music -> Settings -> Mode
+   The cursor is purely a system pointer here — it moves, but it cannot
+   select or trigger anything on this page. Navigation is keyboard-only:
+   W steps forward through the snap order, S steps backward, Space / Enter
+   confirms the active node.
+   Snap order: 12 -> PLAY -> Credits -> Music -> Settings -> Mode
                -> How to Play -> 12
+
+   A second, shorter hour hand is purely decorative: it starts at a random
+   angle and rotates in the same direction as the main hand, at 1/60th of
+   whatever angle the main hand actually travels (hourAngle += mainDelta/60).
    ========================================================================== */
 
 (function () {
   // Angles are degrees clockwise from 12 o'clock (0deg = top).
+  // Layout: 12 (neutral) and PLAY (3 o'clock) each stand alone. Every other
+  // option lives on the left side only — the arc running anticlockwise from
+  // 12 down to 6 (i.e. angles strictly between 180deg and 360deg). That arc
+  // is split into 6 equal slices for the 5 nodes, so the margins next to 12
+  // and next to 6 match the gaps between the nodes themselves — nothing
+  // bleeds onto the right side, where only PLAY sits.
+  const LEFT_ARC_START = 180; // 6 o'clock
+  const LEFT_ARC_SPAN = 180;  // up to 360 / 0, i.e. 12 o'clock
+  const LEFT_SLICE = LEFT_ARC_SPAN / 6; // 5 nodes -> 6 gaps
+
   const NODES = [
     { id: 'twelve',     label: '12',           angle: 0,   neutral: true,  action: null },
     { id: 'play',       label: 'PLAY',         angle: 90,  action: () => go('../game/index.html') },
-    { id: 'exit',       label: 'EXIT',         angle: 135, action: () => window.close() },
-    { id: 'credits',    label: 'Credits',      angle: 171, action: () => go('credits.html') },
-    { id: 'music',      label: 'Music',        angle: 207, action: () => go('music.html') },
-    { id: 'settings',   label: 'Settings',     angle: 243, action: () => go('settings.html') },
-    { id: 'mode',       label: 'Mode',         angle: 279, action: () => go('mode.html') },
-    { id: 'howtoplay',  label: 'How to Play',  angle: 315, action: () => go('howtoplay.html') },
+    { id: 'credits',    label: 'Credits',      angle: LEFT_ARC_START + LEFT_SLICE * 1, action: () => go('credits.html') },
+    { id: 'music',      label: 'Music',        angle: LEFT_ARC_START + LEFT_SLICE * 2, action: () => go('music.html') },
+    { id: 'settings',   label: 'Settings',     angle: LEFT_ARC_START + LEFT_SLICE * 3, action: () => go('settings.html') },
+    { id: 'mode',       label: 'Mode',         angle: LEFT_ARC_START + LEFT_SLICE * 4, action: () => go('mode.html') },
+    { id: 'howtoplay',  label: 'How to Play',  angle: LEFT_ARC_START + LEFT_SLICE * 5, action: () => go('howtoplay.html') },
   ];
 
   function go(url) {
@@ -27,12 +42,14 @@
 
   const svg = document.getElementById('clock-svg');
   const handEl = document.getElementById('hand');
+  const hourHandEl = document.getElementById('hand-hour');
   const ticksGroup = document.getElementById('ticks');
   const labelsGroup = document.getElementById('node-labels');
 
   const RADIUS = 230;
-  const LABEL_RADIUS = 195;
+  const LABEL_RADIUS = 172;
   const HAND_LENGTH = 190;
+  const HOUR_HAND_LENGTH = 110;
 
   function toXY(angleDeg, radius) {
     const rad = (angleDeg - 90) * (Math.PI / 180); // -90 so 0deg = top
@@ -89,6 +106,7 @@
   let handAngle = 0;        // currently rendered angle
   let targetAngle = 0;      // angle we're animating toward
   let overshoot = 0;        // small overshoot offset for the snap feel
+  let hourAngle = Math.random() * 360; // hour hand: random start position
 
   function angularDelta(a, b) {
     // shortest signed distance from a to b, in degrees
@@ -116,64 +134,55 @@
     });
   }
 
+  function drawHourHand() {
+    const tip = toXY(hourAngle, HOUR_HAND_LENGTH);
+    hourHandEl.setAttribute('x2', tip.x);
+    hourHandEl.setAttribute('y2', tip.y);
+  }
+
   // --- animation loop: smooth hand movement with a small overshoot/snap ---
   function animate() {
     const remaining = angularDelta(handAngle, targetAngle);
     if (Math.abs(remaining) > 0.05 || Math.abs(overshoot) > 0.05) {
+      const prevHandAngle = handAngle;
       handAngle += remaining * 0.18;
       overshoot *= 0.82;
       const drawAngle = handAngle + overshoot;
       const tip = toXY(drawAngle, HAND_LENGTH);
       handEl.setAttribute('x2', tip.x);
       handEl.setAttribute('y2', tip.y);
+
+      // hour hand: rotates in the same direction as the main hand, at
+      // 1/60th of whatever angle the main hand actually travelled this
+      // frame (the base motion only — overshoot wobble is excluded).
+      const mainDelta = angularDelta(prevHandAngle, handAngle);
+      hourAngle = (hourAngle + mainDelta / 60 + 360) % 360;
+      drawHourHand();
     }
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
 
-  // initialise hand pointing at 12
+  // initialise main hand pointing at 12, hour hand at its random start
   handAngle = 0;
   targetAngle = 0;
   render();
+  drawHourHand();
 
-  // --- mouse: the hand follows the cursor's angle, snapping to whichever
-  //     node is angularly nearest ---
-  document.addEventListener('mousemove', (e) => {
-    const rect = svg.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = e.clientX - cx;
-    const dy = e.clientY - cy;
-    if (Math.hypot(dx, dy) < 8) return; // ignore right at dead center
-
-    let mouseAngle = (Math.atan2(dy, dx) * 180 / Math.PI) + 90;
-    mouseAngle = (mouseAngle + 360) % 360;
-
-    let nearest = 0;
-    let nearestDist = Infinity;
-    NODES.forEach((node, i) => {
-      const d = Math.abs(angularDelta(mouseAngle, node.angle));
-      if (d < nearestDist) { nearestDist = d; nearest = i; }
-    });
-
-    if (nearest !== currentIndex) setActive(nearest);
-  });
-
-  // --- keyboard: W/S step through the snap order, Space/Enter confirm ---
+  // --- keyboard: W steps forward, S steps backward, Space/Enter confirms ---
+  // (the only way to navigate this menu — the pointer moves on screen but
+  // cannot select or trigger anything here)
   document.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     if (key === 'w' || key === 'arrowup') {
-      setActive((currentIndex - 1 + NODES.length) % NODES.length);
-    } else if (key === 's' || key === 'arrowdown') {
       setActive((currentIndex + 1) % NODES.length);
+    } else if (key === 's' || key === 'arrowdown') {
+      setActive((currentIndex - 1 + NODES.length) % NODES.length);
     } else if (key === ' ' || key === 'enter') {
       e.preventDefault();
       confirmCurrent();
     }
   });
-
-  // --- click anywhere on the face confirms the active node ---
-  svg.addEventListener('click', () => confirmCurrent());
 
   function confirmCurrent() {
     const node = NODES[currentIndex];
