@@ -23,7 +23,7 @@ class GameDirector {
       new ShieldHell(this),
       new StringHell(this),
       new TypingHell(this),
-      new LaserHell(this),
+      new LaserProjectileHell(this),    // Laser beams + projectiles simultaneously
       // new ProjectileHell(this),  // ← uncomment when projectile-hell.js is ready
       // new GravityHell(this),
       // ...
