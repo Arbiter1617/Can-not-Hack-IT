@@ -67,6 +67,38 @@
     box-shadow: var(--glow-lg);
   }
   .slider-handle:active{ cursor: grabbing; }
+
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 22px;
+    background: rgba(41, 226, 255, 0.15);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .toggle-switch.on {
+    background: rgba(41, 226, 255, 0.4);
+    box-shadow: var(--glow-sm);
+  }
+  .toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: var(--neon);
+    border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  .toggle-switch.on .toggle-knob {
+    transform: translateX(22px);
+    background: #fff;
+    box-shadow: var(--glow-sm);
+  }
+  .slider-row.active .toggle-knob {
+    box-shadow: var(--glow-lg);
+  }
 </style>
 </head>
 <body>
@@ -76,7 +108,7 @@
   <div class="page">
     <h1 class="page-title">Music</h1>
     <div id="slider-stack" style="display:flex; flex-direction:column; gap:0.6rem; align-items:center;"></div>
-    <div class="hint">W / S to move &nbsp;·&nbsp; A / D or drag to adjust</div>
+    <div class="hint">W / S to move &nbsp;·&nbsp; A / D / drag to adjust &nbsp;·&nbsp; Esc to go back</div>
   </div>
 
   <script src="background.js"></script>
