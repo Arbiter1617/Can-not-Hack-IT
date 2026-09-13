@@ -35,12 +35,13 @@ class StringHell extends HellBase {
 
     // ── Climbing mode state ────────────────────────────────────────
     this.isClimbing      = false;
-    this.climbOffset     = 0;   // scrolled px within one CLIMB_SPACING band
-    this.climbPlayerRow  = 3;   // row index (0 = topmost visible string)
+    this.climbOffset     = 0;
+    this.climbPlayerRow  = 3;
     this.CLIMB_COUNT     = 8;
-    this.CLIMB_SPACING   = 38;  // px between climbing strings
-    this.CLIMB_SPEED     = 22;  // px/s downward scroll at start
-    this.MONSTER_R       = 28;  // Pac-Man monster radius
+    this.CLIMB_SPACING   = 38;
+    this.CLIMB_SPEED     = 75;   // px/s base — 3× faster than before
+    this.MONSTER_R       = 30;   // per-pacman radius (row covers full width)
+    this.climbSpiderTimer = 0;   // countdown to next spider during climbing
 
     // ── Layout constants ───────────────────────────────────────────
     this.STRING_SPACING   = 55;
@@ -109,11 +110,12 @@ class StringHell extends HellBase {
   }
 
   _startClimbing() {
-    this.isClimbing      = true;
-    this.climbOffset     = 0;
-    this.climbPlayerRow  = Math.floor(this.CLIMB_COUNT / 2);
-    this.attackCooldown  = 9999;
-    this.timeInHell      = 0;
+    this.isClimbing       = true;
+    this.climbOffset      = 0;
+    this.climbPlayerRow   = Math.floor(this.CLIMB_COUNT / 2);
+    this.attackCooldown   = 9999;
+    this.climbSpiderTimer = 1.2;  // first spider after 1.2 s
+    this.timeInHell       = 0;
     this.pool.clear();
     this.dir.hx = canvas.width  / 2;
     this.dir.hy = this._climbY(this.climbPlayerRow);
@@ -241,18 +243,16 @@ class StringHell extends HellBase {
   _updateClimbing(dt) {
     const b = this.boundary;
 
-    // Scroll strings downward
-    const speed = this.CLIMB_SPEED + clamp(this.timeInHell * 1.5, 0, 50);
+    // Scroll strings downward — base 75 px/s, accelerates up to 175 px/s
+    const speed = this.CLIMB_SPEED + clamp(this.timeInHell * 4, 0, 100);
     this.climbOffset += speed * dt;
     this.timeInHell  += dt;
 
-    // When offset crosses one spacing band, wrap the grid up
-    // and shift the player's row down to keep them in place visually
+    // Wrap grid up, player row drifts down to stay visually in place
     while (this.climbOffset >= this.CLIMB_SPACING) {
       this.climbOffset    -= this.CLIMB_SPACING;
-      this.climbPlayerRow += 1; // player drifts toward bottom
+      this.climbPlayerRow += 1;
     }
-    // Cap row at last valid string (one above monster zone)
     this.climbPlayerRow = clamp(this.climbPlayerRow, 0, this.CLIMB_COUNT - 1);
 
     // W/S → snap rows (rising edge)
@@ -267,20 +267,29 @@ class StringHell extends HellBase {
     if (Keys['KeyD'] || Keys['ArrowRight']) this.dir.hx += BASE_SPEED * dt;
     this.dir.hx = clamp(this.dir.hx, b.x + HEART_R, b.x + b.w - HEART_R);
 
-    // Snap Y to current climbing row
+    // Lock Y to current climbing row
     this.dir.hy = this._climbY(this.climbPlayerRow);
 
-    // Monster hit: if heart overlaps monster zone
+    // Monster hit — if heart reaches the Pac-Man row
     const monsterY = this._monsterY;
     if (this.dir.hy >= monsterY - this.MONSTER_R - HEART_R && this.dir.iframes <= 0) {
-      this.climbPlayerRow = Math.max(0, this.climbPlayerRow - 1); // bounce up
+      this.climbPlayerRow = Math.max(0, this.climbPlayerRow - 1);
       this.dir.hy         = this._climbY(this.climbPlayerRow);
       this.dir.iframes    = this.dir.IFRAME_DUR;
       this.dir.flashAlpha = 0.5;
       this.dir.clock.subtract(this.cfg.hitPenalty, this.dir.hx, this.dir.hy);
       this.dir.particles.burst(this.dir.hx, monsterY, '#ffdd00', 14, 200);
     }
+
+    // Spider obstacles on climbing strings
+    this.climbSpiderTimer -= dt;
+    if (this.climbSpiderTimer <= 0) {
+      // Spawn rate: 1.0s → 0.50s as time passes
+      this.climbSpiderTimer = 1.0 - clamp(this.timeInHell / 30, 0, 0.50);
+      this._spawnClimbSpider();
+    }
   }
+
 
   // ── Attack selector (normal mode only) ───────────────────────────
   _spawnAttack() {
@@ -344,6 +353,29 @@ class StringHell extends HellBase {
         life: 0.65, hit: false, lane: startLane,
       });
     });
+  }
+
+  // ── CLIMB SPIDER — spawns on a visible scrolling string lane ─────
+  _spawnClimbSpider() {
+    const b         = this.boundary;
+    const monsterY  = this._monsterY;
+    const validRows = [];
+    for (let i = 0; i < this.CLIMB_COUNT; i++) {
+      const y = this._climbY(i);
+      if (y >= b.y + 5 && y < monsterY - this.MONSTER_R - 10) {
+        validRows.push(y);
+      }
+    }
+    if (validRows.length === 0) return;
+    const spawnY   = validRows[Math.floor(Math.random() * validRows.length)];
+    const fromLeft = Math.random() > 0.5;
+    const spd      = 210 + clamp(score / 280, 0, 100);
+    const bullet   = this.pool.spawn({
+      x: fromLeft ? b.x : b.x + b.w, y: spawnY,
+      vx: fromLeft ? spd : -spd, vy: 0,
+      r: 11, color: '#aa44ff', life: 7,
+    });
+    if (bullet) bullet.isSpider = true;
   }
 
   // ── Draw ──────────────────────────────────────────────────────────
@@ -423,8 +455,8 @@ class StringHell extends HellBase {
     ctx.fillRect(b.x, monsterY - this.MONSTER_R, b.w,
                  b.h - (monsterY - this.MONSTER_R - b.y));
 
-    // Pac-Man monster (facing up, chomping)
-    this._drawMonster(ctx, b.x + b.w / 2, monsterY);
+    // Full-width Pac-Man row
+    this._drawMonster(ctx, b);
 
     // Danger zone glow near monster
     const dangerGrad = ctx.createLinearGradient(0, monsterY - 60, 0, monsterY);
@@ -434,36 +466,50 @@ class StringHell extends HellBase {
     ctx.fillRect(b.x, monsterY - 60, b.w, 60);
   }
 
-  // ── Pac-Man monster ───────────────────────────────────────────────
-  _drawMonster(ctx, cx, cy) {
-    const r         = this.MONSTER_R;
-    const chompT    = performance.now() / 160;
-    const mouthOpen = Math.abs(Math.sin(chompT)) * 0.38; // 0..0.38 radians
+  // ── Full-width Pac-Man monster row ────────────────────────────────
+  _drawMonster(ctx, b) {
+    const r        = this.MONSTER_R;
+    const monsterY = this._monsterY;
+    const chompT   = performance.now() / 140;
+    const mouthOpen = Math.abs(Math.sin(chompT)) * 0.42; // chomping angle
 
-    // Body — yellow Pac-Man, mouth pointing UP
+    // Dark body fill — covers everything below the Pac-Man row
+    ctx.fillStyle = '#110800';
+    ctx.fillRect(b.x, monsterY, b.w, b.y + b.h - monsterY);
+
+    // Pack Pac-Mans wall-to-wall across the boundary width
+    const diameter = r * 2;
+    const count    = Math.floor(b.w / diameter);          // how many fit
+    const gapTotal = b.w - count * diameter;              // leftover space
+    const gap      = gapTotal / (count + 1);              // distribute evenly
+
+    for (let i = 0; i < count; i++) {
+      const cx = b.x + gap + diameter * i + gap * i + r; // centred in its slot
+
+      // Body — yellow Pac-Man mouth pointing UP
+      ctx.beginPath();
+      ctx.arc(cx, monsterY, r,
+        -Math.PI / 2 + mouthOpen,
+        -Math.PI / 2 - mouthOpen + TWO_PI);
+      ctx.lineTo(cx, monsterY);
+      ctx.closePath();
+      ctx.fillStyle  = '#ffdd00';
+      ctx.shadowBlur = 10; ctx.shadowColor = '#ffbb00';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Eye — lower-right of the body (since mouth faces up)
+      ctx.beginPath();
+      ctx.arc(cx + r * 0.28, monsterY + r * 0.26, r * 0.11, 0, TWO_PI);
+      ctx.fillStyle = '#000';
+      ctx.fill();
+    }
+
+    // Top-edge highlight where strings disappear into the mouths
+    ctx.strokeStyle = 'rgba(255,220,60,0.25)';
+    ctx.lineWidth   = 1;
     ctx.beginPath();
-    // Arc from (-π/2 + mouth) clockwise to (-π/2 - mouth), then close to centre
-    const startAngle = -Math.PI / 2 + mouthOpen;
-    const endAngle   = -Math.PI / 2 - mouthOpen + TWO_PI;
-    ctx.arc(cx, cy, r, startAngle, endAngle);
-    ctx.lineTo(cx, cy);
-    ctx.closePath();
-    ctx.fillStyle  = '#ffdd00';
-    ctx.shadowBlur = 18; ctx.shadowColor = '#ffaa00';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // Eye (right side of the body = bottom since mouth is up)
-    ctx.beginPath();
-    ctx.arc(cx + r * 0.30, cy + r * 0.28, r * 0.12, 0, TWO_PI);
-    ctx.fillStyle = '#000';
-    ctx.fill();
-
-    // Label so it's clear what it is (faint)
-    ctx.font      = '10px "Courier New"';
-    ctx.fillStyle = 'rgba(255,220,80,0.55)';
-    ctx.textAlign = 'center';
-    ctx.fillText('▼ MONSTER', cx, cy + r + 16);
-    ctx.textAlign = 'left';
+    ctx.moveTo(b.x, monsterY - r); ctx.lineTo(b.x + b.w, monsterY - r);
+    ctx.stroke();
   }
 }
