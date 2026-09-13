@@ -62,7 +62,7 @@ class GravityHell extends HellBase {
     this.jumpHeld      = false;
     this.jumpHoldTimer = 0;
     this.gravFlipped   = false;
-    this.flipTimer     = rnd(7, 12);
+    this.flipTimer     = rnd(5, 9);
     this.flipWarning   = false;
     this.flipWarnTimer = 0;
     this.spikes        = [];
@@ -128,14 +128,14 @@ class GravityHell extends HellBase {
       this.jumped       = false;
       this.flipWarning  = false;
       this.dir.flashAlpha = 0.4;
-      this.flipTimer = this.gravFlipped ? rnd(4, 7) : rnd(7, 12);
+      this.flipTimer = this.gravFlipped ? rnd(3, 5.5) : rnd(5, 9);
     }
 
     this.spikeTimer -= dt;
-    if (this.spikeTimer <= 0) { this.spikeTimer = rnd(1.1, 2.0); this._spawnSpikes(b); }
+    if (this.spikeTimer <= 0) { this.spikeTimer = rnd(0.85, 1.6); this._spawnSpikes(b); }
 
     this.arrowTimer -= dt;
-    if (this.arrowTimer <= 0) { this.arrowTimer = rnd(0.9, 1.8); this._spawnArrow(b); }
+    if (this.arrowTimer <= 0) { this.arrowTimer = rnd(0.65, 1.4); this._spawnArrow(b); }
 
     const hx = this.dir.hx, hy = this.dir.hy;
     for (let i = this.spikes.length - 1; i >= 0; i--) {
@@ -265,7 +265,7 @@ class GravityHell extends HellBase {
       placed.push(sx);
 
       // 35% chance: spike slides horizontally (left or right)
-      const moving = Math.random() < 0.35;
+      const moving = Math.random() < 0.48;
       const vx     = moving ? (Math.random() < 0.5 ? 1 : -1) * rnd(70, 140) : 0;
 
       this.spikes.push({
@@ -285,7 +285,7 @@ class GravityHell extends HellBase {
     const maxY   = b.y + b.h - margin;
     if (maxY <= minY) return;
     const fromLeft = Math.random() < 0.5;
-    const spd      = 340 + clamp(score / 500, 0, 100);
+    const spd      = 380 + clamp(score / 400, 0, 130);
     this.pool.spawn({
       x: fromLeft ? b.x - 16 : b.x + b.w + 16,
       y: rnd(minY, maxY),
