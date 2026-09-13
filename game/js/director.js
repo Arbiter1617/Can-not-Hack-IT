@@ -22,6 +22,7 @@ class GameDirector {
       new DodgeHell(this),
       new ShieldHell(this),
       new StringHell(this),
+      new TypingHell(this),
       // new GravityHell(this),
       // ...
     ];
@@ -79,12 +80,15 @@ class GameDirector {
 
   // ── Hell Transition — picks a RANDOM hell (never the same one twice) ──
   _transition() {
+    const prevColor = this.currentHell.heartColor; // captured before exit()
     this.currentHell.exit();
     const others = this.hells
       .map((_, i) => i)
       .filter(i => i !== this.hellIdx);
     this.hellIdx     = others[Math.floor(Math.random() * others.length)];
     this.currentHell = this.hells[this.hellIdx];
+    // Lets TypingHell (and future hells) inherit the outgoing heart colour
+    this.currentHell.inheritColor?.(prevColor);
     this.currentHell.enter();
     this.flashAlpha  = 1;
   }
@@ -103,10 +107,16 @@ class GameDirector {
 
     // Passive score & hell gating (skipped in practice — hell is locked)
     score += SCORE_PER_SEC * dt;
-    if (!PRACTICE_HELL && score >= this._nextHellScore) {
-      // Next threshold is another randomised 2000–3500 pts away
-      this._nextHellScore += 2000 + Math.random() * 1500;
-      this._transition();
+    if (!PRACTICE_HELL) {
+      if (score >= this._nextHellScore) {
+        // Normal score-based transition
+        this._nextHellScore += 2000 + Math.random() * 1500;
+        this._transition();
+      } else if (this.currentHell.forceTransition) {
+        // Hell ended itself on its own timer (e.g. Typing Hell 5s window)
+        this.currentHell.forceTransition = false;
+        this._transition();
+      }
     }
 
     // Clock — frozen during hells that pause the timer (e.g. Shield Hell)
