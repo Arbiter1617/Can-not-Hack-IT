@@ -125,6 +125,10 @@ class GameDirector {
     if (this.clock.dead) {
       this.state = 'DEAD';
       this.particles.burst(this.hx, this.hy, '#ff3333', 28, 340);
+      if (window.InfiniteHeartAudio) {
+        InfiniteHeartAudio.stopBgm();
+        InfiniteHeartAudio.playGameOver();
+      }
       return;
     }
 

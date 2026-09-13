@@ -28,7 +28,9 @@ const InfiniteHeartSubpage = (function () {
     const handler = typeof onBack === 'function' ? onBack : goBackToClock;
     const backBtn = document.querySelector('.back-button');
     if (backBtn) {
-      backBtn.addEventListener('click', () => handler());
+      backBtn.addEventListener('click', (e) => {
+        if (e.button === 0) handler(); // left click only
+      });
     }
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') handler();
@@ -83,22 +85,7 @@ const InfiniteHeartSubpage = (function () {
       InfiniteHeartAudio.playSelectSound();
       onSelect(current, items[current]);
     }
-
-    items.forEach((el, i) => {
-      el.addEventListener('mouseenter', () => {
-        if (isDisabled(i)) return;
-        if (i !== current) {
-          current = i;
-          InfiniteHeartAudio.playSelectSound();
-          render();
-        }
-      });
-      el.addEventListener('click', () => {
-        if (isDisabled(i)) return;
-        current = i;
-        confirm();
-      });
-    });
+    // Only keyboard navigation is allowed now.
 
     document.addEventListener('keydown', (e) => {
       const key = e.key.toLowerCase();
