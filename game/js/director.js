@@ -40,6 +40,8 @@ class GameDirector {
   start() {
     score           = 0;
     this._lastHellN = 0;
+    // Randomised first threshold: 2000–3500 pts before first hell switch
+    this._nextHellScore = 2000 + Math.random() * 1500;
 
     // Reset cross-visit hell state (e.g. visit counters)
     this.hells.forEach(h => h.reset());
@@ -101,12 +103,10 @@ class GameDirector {
 
     // Passive score & hell gating (skipped in practice — hell is locked)
     score += SCORE_PER_SEC * dt;
-    if (!PRACTICE_HELL) {
-      const hellN = Math.floor(score / HELL_SCORE_STEP);
-      if (hellN > this._lastHellN) {
-        this._lastHellN = hellN;
-        this._transition();
-      }
+    if (!PRACTICE_HELL && score >= this._nextHellScore) {
+      // Next threshold is another randomised 2000–3500 pts away
+      this._nextHellScore += 2000 + Math.random() * 1500;
+      this._transition();
     }
 
     // Clock — frozen during hells that pause the timer (e.g. Shield Hell)
