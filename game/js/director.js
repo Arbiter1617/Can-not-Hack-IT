@@ -29,6 +29,8 @@ class GameDirector {
     ];
     this.hellIdx     = 0;
     this.currentHell = this.hells[0];
+    this.creditsHell = new CreditsHell(this);
+    this._lastCreditsMilestone = 0;
 
     // ── Parallel overlay systems ─────────────────────────────────────
     this.fruitNinja = new FruitNinjaSystem(this);
@@ -51,6 +53,13 @@ class GameDirector {
 
     // Practice mode: normal timer, hell stays locked — no transitions
     const practiceIdx = PRACTICE_HELL ? (PRACTICE_HELL_IDX[PRACTICE_HELL] ?? 0) : 0;
+    
+    if (practiceIdx === 99) {
+      this.currentHell = this.creditsHell;
+    } else {
+      this.currentHell = this.hells[practiceIdx];
+    }
+    
     this.clock = new LoopClock(60);
 
     this.pool.clear();
@@ -67,8 +76,13 @@ class GameDirector {
       ? practiceIdx
       : Math.floor(Math.random() * this.hells.length);
 
-    this.hellIdx     = startIdx;
-    this.currentHell = this.hells[startIdx];
+    this.hellIdx = startIdx;
+    if (startIdx === 99) {
+      this.currentHell = this.creditsHell;
+    } else {
+      this.currentHell = this.hells[startIdx];
+    }
+    
     this.currentHell.enter();
     this.state = 'PLAYING';
   }
@@ -109,13 +123,33 @@ class GameDirector {
     // Passive score & hell gating (skipped in practice — hell is locked)
     score += SCORE_PER_SEC * dt;
     if (!PRACTICE_HELL) {
-      if (score >= this._nextHellScore) {
+      // --- Credits Trap Logic (score >= 6000, 7000, etc) ---
+      const milestone = Math.floor(score / 1000) * 1000;
+      if (milestone >= 6000 && milestone !== this._lastCreditsMilestone) {
+        this._lastCreditsMilestone = milestone;
+        if (Math.random() < 0.4) { // 40% chance to trigger trap
+          const prevColor = this.currentHell.heartColor;
+          this.currentHell.exit();
+          this.currentHell = this.creditsHell;
+          this.currentHell.inheritColor?.(prevColor);
+          this.currentHell.enter();
+        }
+      }
+
+      // If trapped in CreditsHell, suppress normal transitions until it forces an exit
+      const isTrapped = (this.currentHell === this.creditsHell);
+
+      if (!isTrapped && score >= this._nextHellScore) {
         // Normal score-based transition
         this._nextHellScore += 2000 + Math.random() * 1500;
         this._transition();
       } else if (this.currentHell.forceTransition) {
-        // Hell ended itself on its own timer (e.g. Typing Hell 5s window)
+        // Hell ended itself on its own timer (e.g. Typing Hell or Credits Trap)
         this.currentHell.forceTransition = false;
+        if (isTrapped) {
+          // Push the next score goal out so we don't immediately switch again
+          this._nextHellScore = score + 2000 + Math.random() * 1500; 
+        }
         this._transition();
       }
     }

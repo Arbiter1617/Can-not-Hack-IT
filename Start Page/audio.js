@@ -60,6 +60,15 @@ const InfiniteHeartAudio = (function () {
     } catch (e) { /* ignore */ }
   }
 
+  function playLaserSound() {
+    try {
+      const audio = new Audio('../audio/VFX/laserChargeAndBoom.mp3');
+      // Laser sound is inherently very loud, scale it down to 35% of normal VFX volume
+      audio.volume = Math.max(0, Math.min(1, volumes.master * volumes.vfx * 0.35));
+      audio.play().catch(() => {});
+    } catch (e) { /* ignore */ }
+  }
+
   // --- BGM Seamless Playback Logic ---
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -163,5 +172,5 @@ const InfiniteHeartAudio = (function () {
   // Kick off BGM
   initBGM();
 
-  return { playSelectSound, playGameOver, playTypeSound, refreshVolumes, stopBgm: () => { if (bgmAudio) bgmAudio.pause(); } };
+  return { playSelectSound, playGameOver, playTypeSound, playLaserSound, refreshVolumes, stopBgm: () => { if (bgmAudio) bgmAudio.pause(); } };
 })();
