@@ -34,14 +34,15 @@ class StringHell extends HellBase {
     this._lastStringCount = 3;
 
     // ── Climbing mode state ────────────────────────────────────────
-    this.isClimbing      = false;
-    this.climbOffset     = 0;
-    this.climbPlayerRow  = 3;
-    this.CLIMB_COUNT     = 8;
-    this.CLIMB_SPACING   = 38;
-    this.CLIMB_SPEED     = 75;   // px/s base — 3× faster than before
-    this.MONSTER_R       = 30;   // per-pacman radius (row covers full width)
-    this.climbSpiderTimer = 0;   // countdown to next spider during climbing
+    this.isClimbing       = false;
+    this.climbOffset      = 0;   // wrapping offset [0, CLIMB_SPACING)
+    this.climbCumOffset   = 0;   // cumulative (never wraps) — used for string-locked bullets
+    this.climbPlayerRow   = 3;
+    this.CLIMB_COUNT      = 8;
+    this.CLIMB_SPACING    = 38;
+    this.CLIMB_SPEED      = 75;
+    this.MONSTER_R        = 30;
+    this.climbSpiderTimer = 0;
 
     // ── Layout constants ───────────────────────────────────────────
     this.STRING_SPACING   = 55;
@@ -112,9 +113,10 @@ class StringHell extends HellBase {
   _startClimbing() {
     this.isClimbing       = true;
     this.climbOffset      = 0;
+    this.climbCumOffset   = 0;
     this.climbPlayerRow   = Math.floor(this.CLIMB_COUNT / 2);
     this.attackCooldown   = 9999;
-    this.climbSpiderTimer = 1.2;  // first spider after 1.2 s
+    this.climbSpiderTimer = 1.2;
     this.timeInHell       = 0;
     this.pool.clear();
     this.dir.hx = canvas.width  / 2;
@@ -243,12 +245,14 @@ class StringHell extends HellBase {
   _updateClimbing(dt) {
     const b = this.boundary;
 
-    // Scroll strings downward — base 75 px/s, accelerates up to 175 px/s
+    // Scroll strings downward — base 75 px/s, accelerates to 175 px/s
     const speed = this.CLIMB_SPEED + clamp(this.timeInHell * 4, 0, 100);
-    this.climbOffset += speed * dt;
-    this.timeInHell  += dt;
+    const delta = speed * dt;
+    this.climbOffset    += delta;
+    this.climbCumOffset += delta;   // never wraps — used to track spiders
+    this.timeInHell     += dt;
 
-    // Wrap grid up, player row drifts down to stay visually in place
+    // Wrap grid: player row drifts down to stay visually in place
     while (this.climbOffset >= this.CLIMB_SPACING) {
       this.climbOffset    -= this.CLIMB_SPACING;
       this.climbPlayerRow += 1;
@@ -270,6 +274,13 @@ class StringHell extends HellBase {
     // Lock Y to current climbing row
     this.dir.hy = this._climbY(this.climbPlayerRow);
 
+    // Drag string-spiders down with the scrolling grid
+    // Each spider records climbCumOffset at spawn; every frame we apply the delta
+    for (const bl of this.pool.list) {
+      if (!bl.active || !bl.isStringLocked) continue;
+      bl.y = bl.stringLockBaseY + this.climbCumOffset - bl.stringLockCumAtSpawn;
+    }
+
     // Monster hit — if heart reaches the Pac-Man row
     const monsterY = this._monsterY;
     if (this.dir.hy >= monsterY - this.MONSTER_R - HEART_R && this.dir.iframes <= 0) {
@@ -281,15 +292,14 @@ class StringHell extends HellBase {
       this.dir.particles.burst(this.dir.hx, monsterY, '#ffdd00', 14, 200);
     }
 
-    // Spider obstacles on climbing strings
+    // Double spiders: spawn two per tick, rate 0.50s → 0.28s over time
     this.climbSpiderTimer -= dt;
     if (this.climbSpiderTimer <= 0) {
-      // Spawn rate: 1.0s → 0.50s as time passes
-      this.climbSpiderTimer = 1.0 - clamp(this.timeInHell / 30, 0, 0.50);
+      this.climbSpiderTimer = 0.50 - clamp(this.timeInHell / 30, 0, 0.22);
       this._spawnClimbSpider();
+      this._spawnClimbSpider(); // second spider same tick
     }
   }
-
 
   // ── Attack selector (normal mode only) ───────────────────────────
   _spawnAttack() {
@@ -375,7 +385,13 @@ class StringHell extends HellBase {
       vx: fromLeft ? spd : -spd, vy: 0,
       r: 11, color: '#aa44ff', life: 7,
     });
-    if (bullet) bullet.isSpider = true;
+    if (bullet) {
+      bullet.isSpider            = true;
+      // String-lock: Y tracks the scrolling grid
+      bullet.isStringLocked      = true;
+      bullet.stringLockBaseY     = spawnY;           // Y at moment of spawn
+      bullet.stringLockCumAtSpawn = this.climbCumOffset; // cumOffset at spawn
+    }
   }
 
   // ── Draw ──────────────────────────────────────────────────────────
