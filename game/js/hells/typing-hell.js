@@ -124,9 +124,15 @@ class TypingHell extends HellBase {
 
     this.phaseTimer -= dt;
     if (this.phaseTimer <= 0) {
-      // "then hell ends and next hell begins regardless"
+      // If not a single key was pressed — hard AFK penalty
+      if (this.cursor === 0) {
+        const hx = this.dir.hx, hy = this.dir.hy;
+        this.dir.clock.subtract(10, hx, hy - 40);
+        this.dir.flashAlpha = 0.9;
+        this.dir.particles.burst(hx, hy, '#ff2222', 22, 260);
+      }
+      // Hell ends — transition out or restart drill in practice
       if (PRACTICE_HELL) {
-        // Nothing to advance to in a locked practice loop — restart the drill
         this._beginWarning();
       } else {
         this.forceTransition = true;
