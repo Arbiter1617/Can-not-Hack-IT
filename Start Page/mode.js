@@ -49,6 +49,7 @@
     1: 'shield',
     2: 'string',
     3: 'fruitninja',
+    4: 'typing',
   };
 
   InfiniteHeartSubpage.initList(itemEls, (index) => {
