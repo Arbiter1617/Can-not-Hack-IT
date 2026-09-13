@@ -106,7 +106,9 @@
   let handAngle = 0;        // currently rendered angle
   let targetAngle = 0;      // angle we're animating toward
   let overshoot = 0;        // small overshoot offset for the snap feel
-  let hourAngle = Math.random() * 360; // hour hand: random start position
+  let totalMinuteAngle = 0; // cumulative minutes rotation
+  let baseHourAngle = Math.floor(Math.random() * 12) * 30; // Snap to an exact hour
+  let hourAngle = baseHourAngle;
 
   function angularDelta(a, b) {
     // shortest signed distance from a to b, in degrees
@@ -152,11 +154,11 @@
       handEl.setAttribute('x2', tip.x);
       handEl.setAttribute('y2', tip.y);
 
-      // hour hand: rotates in the same direction as the main hand, at
-      // 1/60th of whatever angle the main hand actually travelled this
-      // frame (the base motion only — overshoot wobble is excluded).
+      // hour hand: rotates like a real clock (1/12th ratio)
       const mainDelta = angularDelta(prevHandAngle, handAngle);
-      hourAngle = (hourAngle + mainDelta / 60 + 360) % 360;
+      totalMinuteAngle += mainDelta;
+      hourAngle = (baseHourAngle + totalMinuteAngle / 12) % 360;
+      if (hourAngle < 0) hourAngle += 360;
       drawHourHand();
     }
     requestAnimationFrame(animate);
