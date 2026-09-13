@@ -34,6 +34,9 @@ class HellBase {
   /** If true, the countdown clock is frozen for the duration of this hell */
   get timerPaused()     { return false; }
 
+  /** Called by director on every game restart — override to reset cross-visit state */
+  reset()               {}
+
   /**
    * Bounding box for heart movement.
    * Return { x, y, w, h } to constrain, or null for full screen.
