@@ -90,32 +90,54 @@ class StringHell extends HellBase {
   get _attackRate()  { return 1.8 - clamp(score / 12000, 0, 1.05); }
 
   // ── reset() — called by director on game restart ──────────────────
-  reset() { this._visitCount = 0; }
+  reset() {
+    this._visitCount        = 0;
+    this._practicePhaseTimer = 0;
+  }
+
+  // ── Phase starters (shared by enter() and practice loop) ──────────
+  _startNormal() {
+    this.isClimbing       = false;
+    this.currentString    = 1;
+    this.timeInHell       = 0;
+    this._lastStringCount = 3;
+    this.attackCooldown   = 1.8;
+    this._activeBombs     = [];
+    this.pool.clear();
+    this.dir.hx = canvas.width  / 2;
+    this.dir.hy = this._strings[1];
+  }
+
+  _startClimbing() {
+    this.isClimbing      = true;
+    this.climbOffset     = 0;
+    this.climbPlayerRow  = Math.floor(this.CLIMB_COUNT / 2);
+    this.attackCooldown  = 9999;
+    this.timeInHell      = 0;
+    this.pool.clear();
+    this.dir.hx = canvas.width  / 2;
+    this.dir.hy = this._climbY(this.climbPlayerRow);
+  }
 
   // ── Lifecycle ─────────────────────────────────────────────────────
   enter() {
     this._visitCount++;
-    this.isClimbing = this._visitCount >= 2;
-
     this._prevW = this._prevS = false;
     this._deferred.forEach(id => clearTimeout(id));
-    this._deferred    = [];
-    this._activeBombs = [];
+    this._deferred           = [];
+    this._practicePhaseTimer = 0;
 
-    if (this.isClimbing) {
-      this.climbOffset    = 0;
-      this.climbPlayerRow = Math.floor(this.CLIMB_COUNT / 2);
-      this.attackCooldown = 9999; // no regular attacks in climbing
-      this.timeInHell     = 0;
-      this.dir.hx = canvas.width  / 2;
-      this.dir.hy = this._climbY(this.climbPlayerRow);
+    // Practice mode always starts in normal phase and loops via timer
+    if (PRACTICE_HELL === 'string') {
+      this._startNormal();
+      return;
+    }
+
+    // Normal play: 2nd+ visit triggers climbing
+    if (this._visitCount >= 2) {
+      this._startClimbing();
     } else {
-      this.currentString    = 1;
-      this.timeInHell       = 0;
-      this._lastStringCount = 3;
-      this.attackCooldown   = 1.8;
-      this.dir.hx = canvas.width  / 2;
-      this.dir.hy = this._strings[1];
+      this._startNormal();
     }
   }
 
@@ -136,6 +158,21 @@ class StringHell extends HellBase {
 
   // ── Update ────────────────────────────────────────────────────────
   update(dt) {
+    // Practice loop: 35 s normal phases → 25 s climbing → repeat indefinitely
+    if (PRACTICE_HELL === 'string') {
+      this._practicePhaseTimer += dt;
+      if (!this.isClimbing && this._practicePhaseTimer >= 35) {
+        this._practicePhaseTimer = 0;
+        this._startClimbing();
+        return;
+      }
+      if (this.isClimbing && this._practicePhaseTimer >= 25) {
+        this._practicePhaseTimer = 0;
+        this._startNormal();
+        return;
+      }
+    }
+
     if (this.isClimbing) { this._updateClimbing(dt); return; }
     this._updateNormal(dt);
   }
