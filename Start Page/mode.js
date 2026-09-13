@@ -9,7 +9,7 @@
   const HELLS = [
     'Dodge', 'Shield', 'String', 'Gravity', 'Laser', 'Projectile',
     'Fruit Ninja', 'Shooter', 'Kamikaze', 'Hole in the Wall',
-    'Typing Test', 'Music'
+    'Typing Test', 'Music', 'Credits Trap (Preview)'
   ];
 
   const listEl = document.getElementById('hell-list');
@@ -53,6 +53,7 @@
     5: 'projectile',
     6: 'fruitninja',
     10: 'typing',
+    12: 'credits',
   };
 
   InfiniteHeartSubpage.initList(itemEls, (index) => {

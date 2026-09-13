@@ -15,7 +15,7 @@ const PRACTICE_HELL = _params.get('practice') || null; // 'dodge' | null
 
 // Map practice param → hell index in director.hells[]
 // fruitninja/projectile map to 0 (Dodge) — their hells aren't wired in yet
-const PRACTICE_HELL_IDX = { dodge: 0, shield: 1, string: 2, typing: 3, laser: 4, gravity: 5, projectile: 0, fruitninja: 0 };
+const PRACTICE_HELL_IDX = { dodge: 0, shield: 1, string: 2, typing: 3, laser: 4, gravity: 5, projectile: 0, fruitninja: 0, credits: 99 };
 
 // score is declared here so every file can read / write it as a global
 let score = 0;

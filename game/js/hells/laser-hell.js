@@ -142,6 +142,9 @@ class LaserHell extends HellBase {
   
   // Spawns 2 laser pairs forming an 'X' (connecting different edges)
   _spawnX() {
+    if (typeof InfiniteHeartAudio !== 'undefined' && InfiniteHeartAudio.playLaserSound) {
+      InfiniteHeartAudio.playLaserSound();
+    }
     const W = (typeof canvas !== 'undefined') ? canvas.width : window.innerWidth;
     const H = (typeof canvas !== 'undefined') ? canvas.height : window.innerHeight;
     
