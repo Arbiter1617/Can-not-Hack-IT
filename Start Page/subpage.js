@@ -52,7 +52,11 @@ const InfiniteHeartSubpage = (function () {
 
     function render() {
       items.forEach((el, i) => {
-        el.classList.toggle('active', i === current);
+        const isActive = (i === current);
+        el.classList.toggle('active', isActive);
+        if (isActive && el.scrollIntoView) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       });
     }
 
