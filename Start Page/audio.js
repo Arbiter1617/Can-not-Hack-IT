@@ -1,6 +1,6 @@
 /* ==========================================================================
    Infinite Heart — shared audio helper
-   Plays assets/Selected Option.mp3 on every snap/confirm.
+   Plays ../Audio/VFX/clock-tick.mp3 on every snap/confirm.
    Wrapped defensively: if the asset isn't present yet, this fails silently
    instead of throwing, so menu navigation still works without it.
    ========================================================================== */
@@ -20,7 +20,7 @@ const InfiniteHeartAudio = (function () {
 
   function playSelectSound() {
     try {
-      const audio = new Audio('assets/Selected Option.mp3');
+      const audio = new Audio('../Audio/VFX/clock-tick.mp3');
       audio.volume = Math.max(0, Math.min(1, baseVolume * vfxVolume));
       audio.play().catch(() => { /* asset missing or autoplay blocked — ignore */ });
     } catch (e) { /* ignore */ }

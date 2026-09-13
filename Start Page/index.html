@@ -43,6 +43,15 @@
     transition: none;
   }
 
+  .hand-hour{
+    stroke: var(--neon);
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 6px var(--neon)) drop-shadow(0 0 14px var(--neon-soft));
+    transition: none;
+  }
+
   .hand-hub{
     fill: var(--neon);
     filter: drop-shadow(0 0 8px var(--neon));
@@ -68,7 +77,6 @@
     text-anchor: middle;
     dominant-baseline: middle;
     transition: font-size 0.18s ease, fill 0.18s ease;
-    cursor: pointer;
   }
 
   .node-label.neutral{
@@ -102,13 +110,14 @@
         <g id="ticks"></g>
         <g id="node-labels"></g>
         <text class="title-text title-main" x="0" y="0" text-anchor="middle">Infinite Heart</text>
+        <line id="hand-hour" class="hand-hour" x1="0" y1="0" x2="0" y2="-110"></line>
         <line id="hand" class="hand" x1="0" y1="0" x2="0" y2="-190"></line>
         <circle class="hand-hub" cx="0" cy="0" r="7"></circle>
       </svg>
     </div>
   </div>
 
-  <div class="hint">W / S to move &nbsp;·&nbsp; Space / Click to confirm</div>
+  <div class="hint">W / S to move &nbsp;·&nbsp; Space to confirm</div>
 
   <script src="background.js"></script>
   <script src="audio.js"></script>
