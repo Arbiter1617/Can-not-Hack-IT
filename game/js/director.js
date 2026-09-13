@@ -58,8 +58,13 @@ class GameDirector {
     this.hx = canvas.width  / 2;
     this.hy = canvas.height / 2;
 
-    this.hellIdx     = practiceIdx;
-    this.currentHell = this.hells[practiceIdx];
+    // Non-practice: start on a random hell
+    const startIdx = PRACTICE_HELL
+      ? practiceIdx
+      : Math.floor(Math.random() * this.hells.length);
+
+    this.hellIdx     = startIdx;
+    this.currentHell = this.hells[startIdx];
     this.currentHell.enter();
     this.state = 'PLAYING';
   }
@@ -70,10 +75,13 @@ class GameDirector {
     else if (this.state === 'PAUSED') this.state = 'PLAYING';
   }
 
-  // ── Hell Transition ───────────────────────────────────────────────
+  // ── Hell Transition — picks a RANDOM hell (never the same one twice) ──
   _transition() {
     this.currentHell.exit();
-    this.hellIdx     = (this.hellIdx + 1) % this.hells.length;
+    const others = this.hells
+      .map((_, i) => i)
+      .filter(i => i !== this.hellIdx);
+    this.hellIdx     = others[Math.floor(Math.random() * others.length)];
     this.currentHell = this.hells[this.hellIdx];
     this.currentHell.enter();
     this.flashAlpha  = 1;
