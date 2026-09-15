@@ -41,6 +41,7 @@ class CreditsHell extends HellBase {
   get name()       { return 'GAME OVER?'; }
   get cfg()        { return { grazeGain: 0.5, hitPenalty: 10 }; }
   get boundary()   { return null; }
+  get hideClock()  { return true; }
 
   enter() {
     this.activeTexts = [];
