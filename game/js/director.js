@@ -235,7 +235,9 @@ class GameDirector {
     ctx.stroke();
 
     // HUD
-    this.clock.draw(ctx, W);
+    if (!this.currentHell.hideClock) {
+      this.clock.draw(ctx, W);
+    }
     this._drawHUD(ctx, W, H);
 
     // Hell-transition flash
