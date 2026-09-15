@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Infinite Heart</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #clock-wrap{
+    position: relative;
+    z-index: 2;
+    width: min(78vmin, 720px);
+    height: min(78vmin, 720px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #clock-svg{
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .face-ring{
+    fill: none;
+    stroke: var(--neon);
+    stroke-width: 2;
+    opacity: 0.85;
+    filter: drop-shadow(0 0 6px var(--neon)) drop-shadow(0 0 16px var(--neon-soft));
+  }
+
+  .tick{
+    stroke: var(--neon);
+    opacity: 0.4;
+    stroke-width: 2;
+  }
+
+  .hand{
+    stroke: var(--neon);
+    stroke-width: 3;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 8px var(--neon)) drop-shadow(0 0 18px var(--neon-soft));
+    transition: none;
+  }
+
+  .hand-hour{
+    stroke: var(--neon);
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 6px var(--neon)) drop-shadow(0 0 14px var(--neon-soft));
+    transition: none;
+  }
+
+  .hand-hub{
+    fill: var(--neon);
+    filter: drop-shadow(0 0 8px var(--neon));
+  }
+
+  .hand-hub{
+    filter: drop-shadow(0 0 8px #ff1a40);
+  }
+
+  .node-label{
+    font-family: var(--font);
+    font-size: 1.05rem;
+    letter-spacing: 0.05em;
+    fill: rgba(217, 249, 255, 0.55);
+    text-anchor: middle;
+    dominant-baseline: middle;
+    transition: font-size 0.18s ease, fill 0.18s ease;
+  }
+
+  .node-label.neutral{
+    fill: rgba(217, 249, 255, 0.25);
+    cursor: default;
+  }
+
+  .node-label.active{
+    fill: var(--neon);
+    filter: drop-shadow(0 0 10px var(--neon));
+  }
+
+  .node-dot{
+    fill: rgba(41, 226, 255, 0.5);
+    transition: r 0.18s ease, fill 0.18s ease;
+  }
+
+  .node-dot.active{
+    fill: var(--neon);
+    filter: drop-shadow(0 0 8px var(--neon));
+  }
+  .game-main-title {
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin: 0;
+    font-size: clamp(2rem, 5vh, 3.5rem);
+    font-family: var(--font);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1.5px #ff1a40;
+    text-shadow: 0 0 10px rgba(255, 26, 64, 0.8), 0 0 20px rgba(255, 26, 64, 0.4);
+    z-index: 5;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <!-- Canvas for generic background VFX -->
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="page">
+    <h1 class="game-main-title">HEART OF GENESIS</h1>
+    <div id="clock-wrap">
+      <svg id="clock-svg" viewBox="-260 -260 520 520">
+        <circle class="face-ring" cx="0" cy="0" r="230"></circle>
+        <g id="ticks"></g>
+        <g id="node-labels"></g>
+        <line id="hand-hour" class="hand-hour" x1="0" y1="0" x2="0" y2="-110"></line>
+        <line id="hand" class="hand" x1="0" y1="0" x2="0" y2="-190"></line>
+        <image class="hand-hub" href="../images/avatar/Red%20Heart.png" x="-22" y="-22" width="44" height="44" />
+      </svg>
+    </div>
+  </div>
+
+  <div class="hint">W / S to move &nbsp;·&nbsp; Space to confirm</div>
+
+  <script src="background.js"></script>
+  <script src="audio.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

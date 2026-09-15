@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Infinite Heart — Mode</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #practice-view{
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+  }
+  #practice-view.visible{ display: flex; }
+  #practice-hell-name{
+    font-size: 2.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--neon);
+    text-shadow: var(--glow-lg);
+    margin-bottom: 1rem;
+  }
+  #practice-note{
+    color: rgba(217, 249, 255, 0.45);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <button class="back-button">← Back</button>
+
+  <div class="page" id="list-page">
+    <h1 class="page-title">Mode</h1>
+    <ul class="menu-list" id="hell-list"></ul>
+    <div class="hint">W / S to move &nbsp;·&nbsp; Enter to select &nbsp;·&nbsp; Esc to go back</div>
+  </div>
+
+  <div id="practice-view">
+    <div id="practice-hell-name"></div>
+    <div id="practice-note">Practice Mode — no timer · Escape / Back returns to Mode</div>
+  </div>
+
+  <script src="background.js"></script>
+  <script src="audio.js"></script>
+  <script src="subpage.js"></script>
+  <script src="mode.js"></script>
+</body>
+</html>
