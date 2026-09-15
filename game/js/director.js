@@ -84,6 +84,9 @@ class GameDirector {
     }
     
     this.currentHell.enter();
+    if (typeof InfiniteHeartAudio !== 'undefined' && InfiniteHeartAudio.resumeBgm) {
+      InfiniteHeartAudio.resumeBgm();
+    }
     this.state = 'PLAYING';
   }
 
@@ -329,8 +332,10 @@ class GameDirector {
     ctx.fillText('SCORE:  ' + Math.floor(score), W / 2, H / 2 + 2);
     ctx.font = '12px "Courier New"'; ctx.fillStyle = '#888';
     ctx.fillText('DIED IN  ' + this.currentHell.name, W / 2, H / 2 + 26);
-    ctx.font = '11px "Courier New"'; ctx.fillStyle = '#555';
-    ctx.fillText('PRESS SPACE OR ENTER TO RETRY', W / 2, H / 2 + 58);
+    ctx.font = '12px "Courier New"'; ctx.fillStyle = '#eee';
+    ctx.fillText('PRESS SPACE OR ENTER TO RETRY', W / 2, H / 2 + 64);
+    ctx.font = '11px "Courier New"'; ctx.fillStyle = '#bbb';
+    ctx.fillText('PRESS ESC TO RETURN TO MAIN MENU', W / 2, H / 2 + 84);
     ctx.textAlign = 'left';
   }
 }

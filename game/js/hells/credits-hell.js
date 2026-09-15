@@ -48,15 +48,17 @@ class CreditsHell extends HellBase {
     this.lineIndex = 0;
     this.phase = 'fakeout';
     this.phaseTimer = 0;
-    
-    // Play fake out sound (faah-reverb usually implies death)
-    if (typeof InfiniteHeartAudio !== 'undefined') {
-      InfiniteHeartAudio.playGameOver();
+
+    if (typeof InfiniteHeartAudio !== 'undefined' && InfiniteHeartAudio.switchToPlaylist) {
+      InfiniteHeartAudio.switchToPlaylist('MENU');
     }
   }
 
   exit() {
     this.activeTexts = [];
+    if (typeof InfiniteHeartAudio !== 'undefined' && InfiniteHeartAudio.switchToPlaylist) {
+      InfiniteHeartAudio.switchToPlaylist('GAME');
+    }
   }
 
   update(dt) {
@@ -123,17 +125,25 @@ class CreditsHell extends HellBase {
       const bottom = t.y + 5;
 
       if (!t.hit && hx > left && hx < right && hy > top && hy < bottom) {
-        if (this.dir.takeDamage(this.cfg.hitPenalty)) {
+        if (this.dir.iframes <= 0) {
           t.hit = true;
+          this.dir.iframes = this.dir.IFRAME_DUR;
+          this.dir.particles.burst(hx, hy, '#ff3333', 16, 220);
+          this.dir.clock.subtract(this.cfg.hitPenalty, hx, hy - 24);
         }
       }
 
       // Check grazing (rough outer box)
       const gLeft = left - 25, gRight = right + 25;
       const gTop = top - 25, gBottom = bottom + 25;
-      if (!t.hit && hx > gLeft && hx < gRight && hy > gTop && hy < gBottom) {
+      if (!t.hit && this.dir.iframes <= 0 && hx > gLeft && hx < gRight && hy > gTop && hy < gBottom) {
         if (hx < left || hx > right || hy < top || hy > bottom) { // not actually hit
-           this.dir.graze(this.cfg.grazeGain);
+           // Throttle graze per text object to avoid spamming
+           if (!t.grazed) {
+             t.grazed = true;
+             this.dir.clock.add(this.cfg.grazeGain, hx, hy - 24);
+             this.dir.particles.burst(hx, hy, '#4499ff', 5, 110);
+           }
         }
       }
 

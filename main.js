@@ -26,7 +26,7 @@
 
   const NODES = [
     { id: 'twelve',     label: '12',           angle: 0,   neutral: true,  action: null },
-    { id: 'play',       label: 'PLAY',         angle: 90,  action: () => go('../game/index.html') },
+    { id: 'play',       label: 'PLAY',         angle: 90,  action: () => go('./game/index.html') },
     { id: 'credits',    label: 'Credits',      angle: LEFT_ARC_START + LEFT_SLICE * 1, action: () => go('credits.html') },
     { id: 'music',      label: 'Music',        angle: LEFT_ARC_START + LEFT_SLICE * 2, action: () => go('music.html') },
     { id: 'settings',   label: 'Settings',     angle: LEFT_ARC_START + LEFT_SLICE * 3, action: () => go('settings.html') },

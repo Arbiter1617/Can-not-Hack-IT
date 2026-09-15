@@ -63,7 +63,7 @@
       const page = document.querySelector('.page');
       if (page) page.classList.add('page-fade-out');
       setTimeout(() => {
-        window.location.href = `../game/index.html?practice=${route}`;
+        window.location.href = `./game/index.html?practice=${route}`;
       }, 300);
     } else {
       // Hell not yet coded — show placeholder

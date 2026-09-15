@@ -36,7 +36,7 @@ const InfiniteHeartAudio = (function () {
 
   function playSelectSound() {
     try {
-      const audio = new Audio('../audio/VFX/clock-tick.mp3');
+      const audio = new Audio('./Audio/VFX/clock-tick.mp3');
       audio.volume = Math.max(0, Math.min(1, volumes.master * volumes.vfx));
       audio.play().catch(() => {});
     } catch (e) { /* ignore */ }
@@ -45,7 +45,7 @@ const InfiniteHeartAudio = (function () {
   function playGameOver() {
     try {
       const file = volumes.specialMusic ? 'faah-reverb.mp3' : 'arcade-game-over.mp3';
-      const audio = new Audio('../audio/VFX/' + file);
+      const audio = new Audio('./Audio/VFX/' + file);
       audio.volume = Math.max(0, Math.min(1, volumes.master * volumes.vfx));
       audio.play().catch(() => {});
     } catch (e) { /* ignore */ }
@@ -54,7 +54,7 @@ const InfiniteHeartAudio = (function () {
   function playTypeSound() {
     try {
       const file = Math.random() < 0.5 ? 'key1.mp3' : 'key2.wav';
-      const audio = new Audio('../audio/VFX/' + file);
+      const audio = new Audio('./Audio/VFX/' + file);
       audio.volume = Math.max(0, Math.min(1, volumes.master * volumes.vfx));
       audio.play().catch(() => {});
     } catch (e) { /* ignore */ }
@@ -62,7 +62,7 @@ const InfiniteHeartAudio = (function () {
 
   function playLaserSound() {
     try {
-      const audio = new Audio('../audio/VFX/laserChargeAndBoom.mp3');
+      const audio = new Audio('./Audio/VFX/laserChargeAndBoom.mp3');
       // Laser sound is inherently very loud, scale it down to 35% of normal VFX volume
       audio.volume = Math.max(0, Math.min(1, volumes.master * volumes.vfx * 0.35));
       audio.play().catch(() => {});
@@ -77,13 +77,9 @@ const InfiniteHeartAudio = (function () {
     }
   }
 
-  function initBGM() {
-    // Determine context (Menu vs Game). Mode submenu counts as game context.
-    const path = window.location.pathname.toLowerCase();
-    const isGameContext = path.includes('game/index.html') || path.includes('mode.html');
-    const targetPlaylistName = isGameContext ? 'GAME' : 'MENU';
-    
-    currentList = isGameContext ? [...GAME_TRACKS] : [...MENU_TRACKS];
+  function switchToPlaylist(targetPlaylistName) {
+    const isGame = (targetPlaylistName === 'GAME');
+    currentList = isGame ? [...GAME_TRACKS] : [...MENU_TRACKS];
 
     const stateStr = sessionStorage.getItem('ih_bgm_state');
     let state = null;
@@ -92,16 +88,22 @@ const InfiniteHeartAudio = (function () {
     }
 
     if (state && state.playlistName === targetPlaylistName) {
-      // Resume existing playlist
       currentList = state.list;
       currentIndex = state.index;
       playTrack(currentList[currentIndex], state.time);
     } else {
-      // Start new playlist
       shuffle(currentList);
       currentIndex = 0;
       playTrack(currentList[currentIndex], 0);
     }
+  }
+
+  function initBGM() {
+    // Determine context (Menu vs Game). Mode submenu counts as game context.
+    const path = window.location.pathname.toLowerCase();
+    const isGameContext = path.includes('game/index.html') || path.includes('mode.html');
+    const targetPlaylistName = isGameContext ? 'GAME' : 'MENU';
+    switchToPlaylist(targetPlaylistName);
   }
 
   let currentStartTime = 0;
@@ -112,7 +114,7 @@ const InfiniteHeartAudio = (function () {
       bgmAudio.src = '';
     }
     currentStartTime = startTime || 0;
-    bgmAudio = new Audio('../audio/BGM/' + filename);
+    bgmAudio = new Audio('./Audio/BGM/' + filename);
     bgmAudio.volume = Math.max(0, Math.min(1, volumes.master * volumes.bgm));
     
     if (currentStartTime > 0) {
@@ -172,5 +174,5 @@ const InfiniteHeartAudio = (function () {
   // Kick off BGM
   initBGM();
 
-  return { playSelectSound, playGameOver, playTypeSound, playLaserSound, refreshVolumes, stopBgm: () => { if (bgmAudio) bgmAudio.pause(); } };
+  return { playSelectSound, playGameOver, playTypeSound, playLaserSound, refreshVolumes, stopBgm: () => { if (bgmAudio) bgmAudio.pause(); }, resumeBgm: () => { if (bgmAudio) bgmAudio.play(); }, switchToPlaylist };
 })();

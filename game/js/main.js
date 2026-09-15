@@ -6,7 +6,10 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Escape') {
     if (PRACTICE_HELL) {
       // In practice mode ESC exits back to the Mode selection page
-      window.location.href = '../Start Page/mode.html';
+      window.location.href = '../mode.html';
+    } else if (director.state === 'DEAD') {
+      // ESC from death screen goes to Main Menu
+      window.location.href = '../index.html';
     } else {
       director.togglePause();
     }
